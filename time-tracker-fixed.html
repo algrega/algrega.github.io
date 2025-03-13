@@ -410,7 +410,7 @@
         actualExitCard.style.display = "none";
       });
       
-      // Calcola ore lavorate
+      // Calcola ore lavorate - VERSIONE CORRETTA
       calculateHoursBtn.addEventListener("click", function() {
         const entryTime = entryTimeInput.value;
         const lunchStart = lunchStartInput.value;
@@ -428,15 +428,21 @@
         
         // Calcola la durata della pausa pranzo (se presente)
         let lunchDuration = 0;
+        let lunchBonus = 0;
         
         if (lunchStart && lunchEnd) {
           const lunchStartMinutes = timeToMinutes(lunchStart);
           const lunchEndMinutes = timeToMinutes(lunchEnd);
           lunchDuration = lunchEndMinutes - lunchStartMinutes;
+          
+          // Applica il bonus di 10 minuti se la pausa è maggiore o uguale a 40 minuti
+          if (lunchDuration >= 40) {
+            lunchBonus = 10;
+          }
         }
         
         // Calcola le ore effettivamente lavorate
-        let totalWorkMinutes = actualExitTimeMinutes - entryTimeMinutes - lunchDuration;
+        let totalWorkMinutes = actualExitTimeMinutes - entryTimeMinutes - lunchDuration + lunchBonus;
         
         // Se si lavora a cavallo della mezzanotte
         if (totalWorkMinutes < 0) {
