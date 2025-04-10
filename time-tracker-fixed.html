@@ -404,7 +404,7 @@
         
         // Formatta e mostra i risultati
         lunchDurationEl.textContent = lunchDuration > 0 ? minutesToTimeString(lunchDuration) : "Nessuna pausa";
-        lunchBonusEl.textContent = lunchBonus > 0 ? `${lunchBonus} minuti` : "Nessun bonus";
+        lunchBonusEl.textContent = `${lunchBonus} minuti`;
         exitTimeEl.textContent = minutesToTimeString(exitTimeMinutes);
         
         // Mostra la card dei risultati
@@ -446,7 +446,7 @@
           } else if (lunchDuration > 40) {
             // Bonus massimo di 10 minuti per pause superiori a 40 minuti
             lunchBonus = 10;
-          }  
+          }
         }
         
         // Calcola le ore effettivamente lavorate
