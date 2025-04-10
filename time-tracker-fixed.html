@@ -385,10 +385,14 @@
           
           lunchDuration = lunchEndMinutes - lunchStartMinutes;
           
-          // Applica il bonus di 10 minuti se la pausa è maggiore o uguale a 40 minuti
-          if (lunchDuration >= 40) {
+           // Applica il bonus:
+          if (lunchDuration >= 30 && lunchDuration <= 40) {
+            // Bonus per pausa tra 30 e 40 minuti: minuti eccedenti 30
+            lunchBonus = lunchDuration - 30;
+          } else if (lunchDuration > 40) {
+            // Bonus massimo di 10 minuti per pause superiori a 40 minuti
             lunchBonus = 10;
-          }
+          }        
         }
 
         // Durata totale della giornata lavorativa in minuti (7 ore e 12 minuti = 432 minuti)
@@ -435,10 +439,14 @@
           const lunchEndMinutes = timeToMinutes(lunchEnd);
           lunchDuration = lunchEndMinutes - lunchStartMinutes;
           
-          // Applica il bonus di 10 minuti se la pausa è maggiore o uguale a 40 minuti
-          if (lunchDuration >= 40) {
+          // Applica il bonus:
+          if (lunchDuration >= 30 && lunchDuration <= 40) {
+            // Bonus per pausa tra 30 e 40 minuti: minuti eccedenti 30
+            lunchBonus = lunchDuration - 30;
+          } else if (lunchDuration > 40) {
+            // Bonus massimo di 10 minuti per pause superiori a 40 minuti
             lunchBonus = 10;
-          }
+          }  
         }
         
         // Calcola le ore effettivamente lavorate
