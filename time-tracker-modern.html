@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Tracker Moderno</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6a11cb; /* Deep Purple */
+      --secondary-color: #2575fc; /* Bright Blue */
+      --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      --text-color-light: #f8f9fa;
+      --text-color-dark: #343a40;
+      --bg-color: #f1f3f5;
+      --card-bg: #ffffff;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --input-border: #ced4da;
+      --input-bg: #ffffff;
+      --input-focus-border: #80bdff; /* Light Blue */
+      --success-color: #28a745; /* Green */
+      --info-color: #17a2b8; /* Teal */
+      --warning-color: #ffc107; /* Yellow */
+      --icon-color: var(--secondary-color);
+
+      --base-font-size: 16px;
+      --border-radius: 10px;
+      --transition-speed: 0.3s;
+    }
+
+    .dark-theme {
+      --primary-color: #9b59b6; /* Lighter Purple */
+      --secondary-color: #3498db; /* Lighter Blue */
+      --text-color-light: #1a1a1a;
+      --text-color-dark: #e9ecef;
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --shadow-color: rgba(255, 255, 255, 0.1);
+      --input-border: #495057;
+      --input-bg: #2c2c2c;
+      --input-focus-border: #5a9ae6;
+      --success-color: #73c686;
+      --info-color: #63d0e0;
+      --warning-color: #ffd966;
+      --icon-color: var(--secondary-color);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 25px;
+      font-size: var(--base-font-size);
+      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    }
+
+    .container {
+      max-width: 550px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 35px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--input-border);
+      transition: border-color var(--transition-speed); /* Added transition */
+    }
+
+    h1 {
+      font-size: calc(var(--base-font-size) * 1.6);
+      font-weight: 600;
+      background: var(--gradient-bg);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      
+      display: flex; /* For icon alignment */
+      align-items: center; /* For icon alignment */
+      gap: 10px; /* Space between icon and text */
+    }
+     h1 .fas { /* Style icon within h1 */
+        background: var(--gradient-bg);
+       -webkit-background-clip: text;
+       -webkit-text-fill-color: transparent;
+       background-clip: text;
+       
+       font-size: calc(var(--base-font-size) * 1.5); /* Slightly smaller than text */
+     }
+
+
+    .theme-toggle button {
+      background: none;
+      border: 1px solid var(--input-border);
+      color: var(--icon-color);
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+      font-size: calc(var(--base-font-size) * 0.9);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .theme-toggle button:hover {
+      background-color: var(--icon-color);
+      color: var(--card-bg);
+      border-color: var(--icon-color);
+    }
+    .theme-toggle button .fas { /* Icon size */
+        font-size: calc(var(--base-font-size) * 1.1);
+    }
+
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 6px 15px var(--shadow-color);
+      padding: 30px;
+      margin-bottom: 25px;
+      overflow: hidden; /* For potential animations */
+      transition: background-color var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed); /* Added border-color */
+      border: 1px solid transparent; /* Prepare for potential border */
+    }
+
+    .dark-theme .card {
+        border-color: var(--input-border); /* Add subtle border in dark mode */
+    }
+
+
+    .form-group {
+      margin-bottom: 20px;
+      opacity: 0; /* Start hidden for animation */
+      transform: translateY(10px); /* Start slightly lower */
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    /* Stagger animation */
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; } /* For actual exit time */
+
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: calc(var(--base-font-size) * 0.95);
+      color: var(--text-color-dark);
+      transition: color var(--transition-speed);
+    }
+    label .fas {
+        margin-right: 8px;
+        color: var(--icon-color);
+        width: 16px; /* Ensure alignment */
+        text-align: center;
+        transition: color var(--transition-speed);
+    }
+
+    input[type="time"] {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: var(--base-font-size);
+      border: 1px solid var(--input-border);
+      border-radius: var(--border-radius);
+      background-color: var(--input-bg);
+      color: var(--text-color-dark);
+      transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    input[type="time"]:focus {
+      outline: none;
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 25%, transparent); /* Use color-mix for softer shadow */
+    }
+
+    /* Dark theme time input indicator */
+    .dark-theme input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+    }
+
+    button.main-action {
+      background: var(--gradient-bg);
+      color: var(--text-color-light);
+      border: none;
+      padding: 14px 20px;
+      font-size: calc(var(--base-font-size) * 1.05);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity var(--transition-speed);
+      margin-top: 10px; /* Add some space above button */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0; /* Start hidden for animation */
+      transform: translateY(10px); /* Start slightly lower */
+      animation: fadeInUp 0.5s ease forwards 0.4s; /* Delay after last input */
+      position: relative; /* Needed for pseudo-element */
+      overflow: hidden; /* Needed for pseudo-element */
+    }
+
+     button.main-action::before { /* Add subtle hover effect */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+        transition: left 0.4s ease-in-out;
+     }
+
+
+    button.main-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color) 30%, transparent);
+      opacity: 0.95;
+    }
+
+     button.main-action:hover::before {
+       left: 100%; /* Move shine effect across */
+     }
+
+
+    button.main-action:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 20%, transparent);
+    }
+
+    button#calculate-hours-btn {
+        animation-delay: 0.5s; /* Delay after exit time input */
+         /* Use info color gradient */
+        background: linear-gradient(135deg, var(--info-color) 0%, color-mix(in srgb, var(--info-color) 70%, var(--secondary-color)) 100%);
+    }
+    button#calculate-hours-btn:hover {
+        /* Adjust hover shadow color */
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--info-color) 30%, transparent);
+        opacity: 0.95;
+    }
+     button#calculate-hours-btn:active {
+         box-shadow: 0 4px 10px color-mix(in srgb, var(--info-color) 20%, transparent);
+     }
+
+
+    .result-card, .actual-exit-card {
+      display: none; /* Initially hidden, shown by JS */
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 5px; /* Added slight horizontal padding */
+      border-bottom: 1px solid var(--input-border);
+      font-size: calc(var(--base-font-size) * 0.95);
+      transition: border-color var(--transition-speed), background-color 0.2s ease; /* Added background transition */
+    }
+     .result-item:hover { /* Subtle hover highlight */
+        background-color: color-mix(in srgb, var(--bg-color) 50%, var(--card-bg));
+     }
+
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      font-weight: 400;
+      color: var(--text-color-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Increased gap */
+      transition: color var(--transition-speed);
+    }
+     .result-label .fas {
+        color: var(--icon-color);
+        width: 18px; /* Ensure alignment */
+        text-align: center;
+        transition: color var(--transition-speed);
+        font-size: calc(var(--base-font-size) * 1.1); /* Slightly larger icon */
+    }
+
+    .result-value {
+      font-weight: 600;
+      color: var(--text-color-dark);
+      transition: color var(--transition-speed);
+      padding: 3px 6px; /* Add padding for better visual separation */
+      border-radius: 5px; /* Rounded corners */
+      background-color: transparent; /* Default background */
+       transition: color var(--transition-speed), background-color var(--transition-speed);
+    }
+
+    .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 15%, transparent); }
+    .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 15%, transparent); }
+    .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 15%, transparent); }
+    /* Adjust dark theme results */
+    .dark-theme .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 25%, transparent); }
+    .dark-theme .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 25%, transparent); }
+    .dark-theme .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 25%, transparent); }
+
+
+    .divider {
+      margin: 15px 0;
+      border-top: 1px solid var(--input-border);
+      transition: border-color var(--transition-speed);
+    }
+
+    /* Simple pulse animation for result display */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    .result-card.show, .actual-exit-card.show {
+        display: block;
+        animation: fadeIn 0.5s ease forwards, pulse 0.6s ease-in-out 0.3s; /* Chain animations */
+    }
+
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); } /* Fade in slightly from below */
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body { padding: 15px; }
+      .container { margin: 10px auto; }
+      h1 { font-size: calc(var(--base-font-size) * 1.4); gap: 8px;}
+       h1 .fas { font-size: calc(var(--base-font-size) * 1.3); }
+      .card { padding: 20px; }
+      header { margin-bottom: 25px; }
+      button.main-action { padding: 12px 15px; font-size: var(--base-font-size); }
+      .theme-toggle button { padding: 6px 10px; font-size: calc(var(--base-font-size) * 0.85); }
+      .result-label { gap: 8px; }
+      .result-label .fas { width: 16px; font-size: var(--base-font-size); }
+      .result-value { font-size: calc(var(--base-font-size) * 0.9); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-stopwatch"></i> Time Tracker</h1>
+      <div class="theme-toggle">
+         <button id="theme-toggle-btn">
+             <i class="fas fa-moon"></i> <!-- Placeholder icon, JS will set correctly -->
+             <span id="theme-btn-text">Tema Scuro</span>
+         </button>
+      </div>
+    </header>
+
+    <div class="card" id="input-card"> <!-- Added ID for potential focus -->
+      <div class="form-group">
+        <label for="entry-time"><i class="fas fa-right-to-bracket"></i>Orario di ingresso:</label>
+        <input type="time" id="entry-time" required>
+      </div>
+      <div class="form-group">
+        <label for="lunch-start"><i class="fas fa-utensils"></i>Uscita per pausa pranzo:</label>
+        <input type="time" id="lunch-start">
+      </div>
+      <div class="form-group">
+        <label for="lunch-end"><i class="fas fa-person-walking-arrow-right"></i>Rientro dalla pausa pranzo:</label>
+        <input type="time" id="lunch-end">
+      </div>
+      <button id="calculate-btn" class="main-action"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
+    </div>
+
+    <div class="card result-card" id="result-card"> <!-- Initially hidden -->
+      <div class="result-item">
+        <span class="result-label"><i class="fas fa-clock"></i>Durata pausa (effettiva):</span>
+        <span class="result-value info" id="lunch-duration">--:--</span>
+      </div>
+      <div class="result-item">
+        <span class="result-label"><i class="fas fa-gift"></i>Bonus pausa applicato:</span>
+        <span class="result-value" id="lunch-bonus">--</span>
+      </div>
+      <div class="result-item">
+        <span class="result-label"><i class="fas fa-right-from-bracket"></i>Orario previsto di uscita:</span>
+        <span class="result-value success" id="exit-time">--:--</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group"> <!-- This group belongs here logically -->
+        <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
+        <input type="time" id="actual-exit-time">
+      </div>
+      <button id="calculate-hours-btn" class="main-action"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
+    </div>
+
+    <div class="card actual-exit-card" id="actual-exit-card"> <!-- Initially hidden -->
+      <div class="result-item">
+        <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
+        <span class="result-value warning" id="total-hours">--:--</span>
+      </div>
+      <div class="result-item">
+        <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (7h 12m):</span>
+        <span class="result-value" id="hours-difference">--:--</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // UI Elements
+      const themeToggleButton = document.getElementById("theme-toggle-btn");
+      const themeButtonText = document.getElementById("theme-btn-text");
+      const themeButtonIcon = themeToggleButton.querySelector('.fas');
+      const calculateBtn = document.getElementById("calculate-btn");
+      const calculateHoursBtn = document.getElementById("calculate-hours-btn");
+      const resultCard = document.getElementById("result-card");
+      const actualExitCard = document.getElementById("actual-exit-card");
+
+      // Inputs
+      const entryTimeInput = document.getElementById("entry-time");
+      const lunchStartInput = document.getElementById("lunch-start");
+      const lunchEndInput = document.getElementById("lunch-end");
+      const actualExitTimeInput = document.getElementById("actual-exit-time");
+
+      // Outputs
+      const lunchDurationEl = document.getElementById("lunch-duration");
+      const lunchBonusEl = document.getElementById("lunch-bonus");
+      const exitTimeEl = document.getElementById("exit-time");
+      const totalHoursEl = document.getElementById("total-hours");
+      const hoursDifferenceEl = document.getElementById("hours-difference");
+
+      // --- Theme Handling ---
+      function setTheme(isDark) {
+        document.body.classList.toggle("dark-theme", isDark);
+        themeButtonText.textContent = isDark ? "Tema Chiaro" : "Tema Scuro";
+        themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`; // Update icon class directly
+        localStorage.setItem("darkTheme", isDark ? "true" : "false"); // Store as string
+      }
+
+      const savedTheme = localStorage.getItem("darkTheme") === "true";
+      setTheme(savedTheme); // Apply saved theme on load
+
+      themeToggleButton.addEventListener("click", () => {
+        setTheme(!document.body.classList.contains("dark-theme"));
+      });
+
+      // --- Utility Functions ---
+      function timeToMinutes(timeStr) {
+        if (!timeStr) return null; // Return null for empty inputs
+        const [hours, minutes] = timeStr.split(":").map(Number);
+        if (isNaN(hours) || isNaN(minutes)) return null; // Invalid format
+        return hours * 60 + minutes;
+      }
+
+      function minutesToTimeString(totalMinutes) {
+         if (totalMinutes === null || isNaN(totalMinutes)) return "--:--"; // Handle invalid input
+         const isNegative = totalMinutes < 0;
+         const absMinutes = Math.abs(totalMinutes);
+         const hours = Math.floor(absMinutes / 60);
+         const minutes = Math.round(absMinutes % 60); // Round minutes
+         const sign = isNegative ? "-" : "";
+         // Adjust for rounding up to 60 minutes
+         if (minutes === 60) {
+            return `${sign}${(hours + 1).toString().padStart(2, "0")}:00`;
+         }
+         return `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+      }
+
+       function displayCard(cardElement) {
+            // Remove 'show' class from other cards first if necessary
+            if (cardElement === resultCard) actualExitCard.classList.remove('show');
+            if (cardElement === actualExitCard) resultCard.classList.remove('show'); // Optional: hide result when showing actual
+
+            cardElement.classList.add('show'); // Add class to trigger animation
+       }
+
+
+      // --- Calculation Logic ---
+      calculateBtn.addEventListener("click", function() {
+        const entryMinutes = timeToMinutes(entryTimeInput.value);
+        const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
+        const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+
+        if (entryMinutes === null) {
+          alert("Per favore, inserisci un orario di ingresso valido.");
+          entryTimeInput.focus();
+          return;
+        }
+
+        let effectiveLunchMinutes = 0;
+        let lunchBonusMinutes = 0;
+
+        // Validate and calculate lunch break
+        if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
+          if (lunchEndMinutes <= lunchStartMinutes) {
+            alert("L'orario di rientro dalla pausa pranzo deve essere successivo all'orario di uscita per la pausa.");
+            lunchEndInput.focus();
+            return;
+          }
+          if (lunchStartMinutes < entryMinutes) {
+            alert("L'orario di uscita per la pausa pranzo non può essere precedente all'orario di ingresso.");
+            lunchStartInput.focus();
+            return;
+          }
+          // Actual duration of the break
+          const actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
+          // Effective break duration for calculation (minimum 30 min if taken)
+          effectiveLunchMinutes = Math.max(actualLunchDuration, 30);
+           // Calculate bonus (max 10 min for breaks > 30 min)
+           lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - 30), 10);
+
+           lunchDurationEl.textContent = minutesToTimeString(actualLunchDuration); // Show actual duration
+
+        } else if (lunchStartMinutes !== null || lunchEndMinutes !== null) {
+          alert("Inserisci sia l'orario di uscita che di rientro per la pausa pranzo, oppure lasciali entrambi vuoti.");
+          return;
+        } else {
+             // No break taken
+             lunchDurationEl.textContent = "Nessuna";
+             lunchBonusMinutes = 0; // No bonus if no break
+             effectiveLunchMinutes = 0; // No break time added
+        }
+
+
+        const workdayMinutes = 7 * 60 + 12; // 7 hours 12 minutes
+        // Calculate exit time: Entry + Workday + Effective Break - Bonus
+        const exitTimeTotalMinutes = entryMinutes + workdayMinutes + effectiveLunchMinutes - lunchBonusMinutes;
+
+        lunchBonusEl.textContent = lunchBonusMinutes > 0 ? `${lunchBonusMinutes} min` : "Nessuno";
+        exitTimeEl.textContent = minutesToTimeString(exitTimeTotalMinutes);
+
+        // Show result card
+        displayCard(resultCard);
+        // Optionally clear/hide the second result card
+        actualExitCard.classList.remove('show');
+        actualExitTimeInput.value = ""; // Clear previous actual exit time
+        totalHoursEl.textContent = "--:--";
+        hoursDifferenceEl.textContent = "--:--";
+        hoursDifferenceEl.className = "result-value"; // Reset class
+      });
+
+      calculateHoursBtn.addEventListener("click", function() {
+        const entryMinutes = timeToMinutes(entryTimeInput.value);
+        const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
+        const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+        const actualExitMinutes = timeToMinutes(actualExitTimeInput.value);
+    
+        if (entryMinutes === null || actualExitMinutes === null) {
+          alert("Inserisci un orario di ingresso e un orario effettivo di uscita validi.");
+          if(entryMinutes === null) entryTimeInput.focus();
+          else actualExitTimeInput.focus();
+          return;
+        }
+    
+        let lunchDuration = 0;
+        let lunchBonus = 0;
+    
+        if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
+          if (lunchEndMinutes > lunchStartMinutes) {
+              lunchDuration = lunchEndMinutes - lunchStartMinutes;
+              lunchDuration = Math.max(lunchDuration, 30); // Ensure minimum 30 min break counted if taken
+              lunchBonus = Math.min(Math.max(0, lunchDuration - 30), 10);
+          }
+        }
+    
+        let totalWorkMinutes = actualExitMinutes - entryMinutes - (lunchDuration > 0 ? lunchDuration : 0) + lunchBonus;
+
+        let actualLunchDuration = 0;
+        // Recalculate actual break duration if it happened *during* work hours
+        if (lunchStartMinutes !== null && lunchEndMinutes !== null &&
+            lunchStartMinutes >= entryMinutes && lunchEndMinutes <= actualExitMinutes &&
+            lunchEndMinutes > lunchStartMinutes) {
+             actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
+        }
+
+        if (actualExitMinutes < entryMinutes) {
+             totalWorkMinutes += 24 * 60;
+        }
+
+        const standardWorkMinutes = 7 * 60 + 12;
+        const differenceMinutes = totalWorkMinutes - standardWorkMinutes;
+
+        totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
+        hoursDifferenceEl.textContent = `${differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(differenceMinutes)}`;
+
+
+        // Update difference styling based on value
+        hoursDifferenceEl.className = "result-value"; // Reset classes
+        if (differenceMinutes > 5) { // More than 5 mins extra
+          hoursDifferenceEl.classList.add("success");
+        } else if (differenceMinutes < -5) { // More than 5 mins short
+          hoursDifferenceEl.classList.add("warning");
+        } else { // Within +/- 5 mins
+          hoursDifferenceEl.classList.add("info");
+        }
+
+        // Show the second result card
+         displayCard(actualExitCard);
+      });
+
+    });
+  </script>
+</body>
+</html>
