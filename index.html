@@ -1,629 +1,847 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Time Tracker Moderno</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #6a11cb; /* Deep Purple */
-      --secondary-color: #2575fc; /* Bright Blue */
-      --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-      --text-color-light: #f8f9fa;
-      --text-color-dark: #343a40;
-      --bg-color: #f1f3f5;
-      --card-bg: #ffffff;
-      --shadow-color: rgba(0, 0, 0, 0.1);
-      --input-border: #ced4da;
-      --input-bg: #ffffff;
-      --input-focus-border: #80bdff; /* Light Blue */
-      --success-color: #28a745; /* Green */
-      --info-color: #17a2b8; /* Teal */
-      --warning-color: #ffc107; /* Yellow */
-      --icon-color: var(--secondary-color);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker Moderno v2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Variables & Theming --- */
+        :root {
+            --primary-hue: 260; /* Purple */
+            --secondary-hue: 210; /* Blue */
+            --accent-hue: 300; /* Magenta/Pinkish */
 
-      --base-font-size: 16px;
-      --border-radius: 10px;
-      --transition-speed: 0.3s;
-    }
+            --primary-color: hsl(var(--primary-hue), 70%, 60%);
+            --secondary-color: hsl(var(--secondary-hue), 80%, 55%);
+            --accent-color: hsl(var(--accent-hue), 60%, 65%);
 
-    .dark-theme {
-      --primary-color: #9b59b6; /* Lighter Purple */
-      --secondary-color: #3498db; /* Lighter Blue */
-      --text-color-light: #1a1a1a;
-      --text-color-dark: #e9ecef;
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --shadow-color: rgba(255, 255, 255, 0.1);
-      --input-border: #495057;
-      --input-bg: #2c2c2c;
-      --input-focus-border: #5a9ae6;
-      --success-color: #73c686;
-      --info-color: #63d0e0;
-      --warning-color: #ffd966;
-      --icon-color: var(--secondary-color);
-    }
+            --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            --gradient-text: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+            --text-color-light: hsl(0, 0%, 98%);
+            --text-color-dark: hsl(var(--primary-hue), 15%, 25%);
+            --text-color-medium: hsl(var(--primary-hue), 10%, 45%);
+            --text-color-muted: hsl(var(--primary-hue), 10%, 65%);
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color-dark);
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 25px;
-      font-size: var(--base-font-size);
-      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
-    }
+            --bg-color: hsl(var(--secondary-hue), 30%, 96%);
+            --card-bg: hsl(0, 0%, 100%);
+            --input-bg: hsl(var(--secondary-hue), 20%, 99%);
+            --input-border: hsl(var(--secondary-hue), 20%, 88%);
+            --input-focus-border: var(--secondary-color);
+            --shadow-color: hsla(var(--primary-hue), 40%, 50%, 0.1);
+            --shadow-hover-color: hsla(var(--primary-hue), 40%, 50%, 0.15);
+            --shadow-active-color: hsla(var(--primary-hue), 40%, 50%, 0.1);
 
-    .container {
-      max-width: 550px;
-      margin: 20px auto;
-      padding: 0 15px;
-    }
+            --success-color: hsl(140, 60%, 45%);
+            --info-color: hsl(190, 70%, 50%);
+            --warning-color: hsl(40, 80%, 55%);
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 35px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--input-border);
-      transition: border-color var(--transition-speed); /* Added transition */
-    }
+            --base-font-size: 16px;
+            --border-radius-sm: 6px;
+            --border-radius-md: 10px;
+            --border-radius-lg: 16px;
+            --transition-fast: 0.15s;
+            --transition-medium: 0.3s;
+            --transition-slow: 0.5s;
+        }
 
-    h1 {
-      font-size: calc(var(--base-font-size) * 1.6);
-      font-weight: 600;
-      background: var(--gradient-bg);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      
-      display: flex; /* For icon alignment */
-      align-items: center; /* For icon alignment */
-      gap: 10px; /* Space between icon and text */
-    }
-     h1 .fas { /* Style icon within h1 */
-        background: var(--gradient-bg);
-       -webkit-background-clip: text;
-       -webkit-text-fill-color: transparent;
-       background-clip: text;
-       
-       font-size: calc(var(--base-font-size) * 1.5); /* Slightly smaller than text */
-     }
+        .dark-theme {
+            --primary-hue: 265;
+            --secondary-hue: 215;
+            --accent-hue: 305;
 
+            --primary-color: hsl(var(--primary-hue), 60%, 70%);
+            --secondary-color: hsl(var(--secondary-hue), 70%, 65%);
+            --accent-color: hsl(var(--accent-hue), 50%, 75%);
 
-    .theme-toggle button {
-      background: none;
-      border: 1px solid var(--input-border);
-      color: var(--icon-color);
-      padding: 8px 12px;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
-      font-size: calc(var(--base-font-size) * 0.9);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .theme-toggle button:hover {
-      background-color: var(--icon-color);
-      color: var(--card-bg);
-      border-color: var(--icon-color);
-    }
-    .theme-toggle button .fas { /* Icon size */
-        font-size: calc(var(--base-font-size) * 1.1);
-    }
+            --text-color-light: hsl(var(--primary-hue), 15%, 15%);
+            --text-color-dark: hsl(0, 0%, 95%);
+            --text-color-medium: hsl(var(--primary-hue), 10%, 75%);
+            --text-color-muted: hsl(var(--primary-hue), 10%, 55%);
 
+            --bg-color: hsl(var(--secondary-hue), 15%, 12%);
+            --card-bg: hsl(var(--secondary-hue), 15%, 18%);
+            --input-bg: hsl(var(--secondary-hue), 15%, 22%);
+            --input-border: hsl(var(--secondary-hue), 10%, 35%);
+            --input-focus-border: var(--secondary-color);
+            --shadow-color: hsla(0, 0%, 0%, 0.2);
+            --shadow-hover-color: hsla(0, 0%, 0%, 0.3);
+            --shadow-active-color: hsla(0, 0%, 0%, 0.15);
 
-    .card {
-      background-color: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: 0 6px 15px var(--shadow-color);
-      padding: 30px;
-      margin-bottom: 25px;
-      overflow: hidden; /* For potential animations */
-      transition: background-color var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed); /* Added border-color */
-      border: 1px solid transparent; /* Prepare for potential border */
-    }
+            --success-color: hsl(140, 55%, 60%);
+            --info-color: hsl(190, 65%, 65%);
+            --warning-color: hsl(40, 75%, 65%);
+        }
 
-    .dark-theme .card {
-        border-color: var(--input-border); /* Add subtle border in dark mode */
-    }
+        /* --- Global Styles & Resets --- */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 25px;
+            font-size: var(--base-font-size);
+            transition: background-color var(--transition-medium) ease, color var(--transition-medium) ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    .form-group {
-      margin-bottom: 20px;
-      opacity: 0; /* Start hidden for animation */
-      transform: translateY(10px); /* Start slightly lower */
-      animation: fadeInUp 0.5s ease forwards;
-    }
-    /* Stagger animation */
-    .form-group:nth-child(1) { animation-delay: 0.1s; }
-    .form-group:nth-child(2) { animation-delay: 0.2s; }
-    .form-group:nth-child(3) { animation-delay: 0.3s; }
-    .form-group:nth-child(4) { animation-delay: 0.4s; } /* For actual exit time */
+        .container {
+            max-width: 580px; /* Slightly wider */
+            margin: 20px auto;
+            padding: 0 15px;
+        }
 
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--input-border);
+            transition: border-color var(--transition-medium);
+        }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      font-size: calc(var(--base-font-size) * 0.95);
-      color: var(--text-color-dark);
-      transition: color var(--transition-speed);
-    }
-    label .fas {
-        margin-right: 8px;
-        color: var(--icon-color);
-        width: 16px; /* Ensure alignment */
-        text-align: center;
-        transition: color var(--transition-speed);
-    }
+        h1 {
+            font-size: calc(var(--base-font-size) * 1.5);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced gap slightly */
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent; /* Fallback */
+            -webkit-text-fill-color: transparent;
+        }
+        h1 .fas { /* Style for the icon */
+            font-size: calc(var(--base-font-size) * 1.4); /* Adjust size as needed */
+            opacity: 0.9;
+            /* Ensure the icon also gets the gradient color */
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
 
-    input[type="time"] {
-      width: 100%;
-      padding: 12px 15px;
-      font-size: var(--base-font-size);
-      border: 1px solid var(--input-border);
-      border-radius: var(--border-radius);
-      background-color: var(--input-bg);
-      color: var(--text-color-dark);
-      transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed);
-    }
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
 
-    input[type="time"]:focus {
-      outline: none;
-      border-color: var(--input-focus-border);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 25%, transparent); /* Use color-mix for softer shadow */
-    }
-
-    /* Dark theme time input indicator */
-    .dark-theme input[type="time"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.8);
-    }
-
-    button.main-action {
-      background: var(--gradient-bg);
-      color: var(--text-color-light);
-      border: none;
-      padding: 14px 20px;
-      font-size: calc(var(--base-font-size) * 1.05);
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      width: 100%;
-      font-weight: 600;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity var(--transition-speed);
-      margin-top: 10px; /* Add some space above button */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      opacity: 0; /* Start hidden for animation */
-      transform: translateY(10px); /* Start slightly lower */
-      animation: fadeInUp 0.5s ease forwards 0.4s; /* Delay after last input */
-      position: relative; /* Needed for pseudo-element */
-      overflow: hidden; /* Needed for pseudo-element */
-    }
-
-     button.main-action::before { /* Add subtle hover effect */
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
-        transition: left 0.4s ease-in-out;
-     }
+        .icon-button {
+            background: none;
+            border: 1px solid var(--input-border);
+            color: var(--text-color-medium);
+            padding: 8px 10px;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast) ease-out;
+            font-size: calc(var(--base-font-size) * 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center icon */
+            gap: 8px;
+            min-width: 40px; /* Ensure minimum size */
+            position: relative; /* For potential tooltips */
+        }
+        .icon-button:hover {
+            background-color: var(--input-bg);
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        .icon-button:active {
+            transform: translateY(0);
+            background-color: color-mix(in srgb, var(--input-bg) 80%, black);
+            box-shadow: none;
+        }
+        .icon-button .fas {
+            font-size: calc(var(--base-font-size) * 1.1);
+            transition: transform var(--transition-medium) ease; /* For icon animation */
+        }
+        /* Theme toggle icon animation */
+        .dark-theme #theme-toggle-btn .fa-moon { transform: rotate(360deg); }
+        #theme-toggle-btn .fa-sun { transform: rotate(0deg); }
+        .dark-theme #theme-toggle-btn .fa-sun { transform: rotate(360deg); }
 
 
-    button.main-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color) 30%, transparent);
-      opacity: 0.95;
-    }
+        /* --- Cards --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg); /* More rounded */
+            box-shadow: 0 5px 15px var(--shadow-color);
+            padding: 25px 30px; /* Adjusted padding */
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: background-color var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
+            border: 1px solid transparent;
+            position: relative; /* For potential pseudo-elements */
+        }
+        .dark-theme .card {
+            border-color: var(--input-border);
+        }
 
-     button.main-action:hover::before {
-       left: 100%; /* Move shine effect across */
-     }
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateX(-10px); /* Slide in from left */
+            animation: slideFadeIn 0.4s ease forwards;
+        }
+        /* Stagger animation */
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.18s; }
+        .form-group:nth-child(3) { animation-delay: 0.26s; }
+        .form-group:nth-child(4) { animation-delay: 0.34s; } /* For actual exit time */
 
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: calc(var(--base-font-size) * 0.9);
+            color: var(--text-color-medium);
+            transition: color var(--transition-medium);
+            display: flex; /* Align icon and text */
+            align-items: center;
+            gap: 8px;
+        }
+        label .fas {
+            color: var(--secondary-color);
+            width: 16px;
+            text-align: center;
+            transition: color var(--transition-medium);
+            opacity: 0.8;
+        }
 
-    button.main-action:active {
-        transform: translateY(0);
-        box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 20%, transparent);
-    }
-
-    button#calculate-hours-btn {
-        animation-delay: 0.5s; /* Delay after exit time input */
-         /* Use info color gradient */
-        background: linear-gradient(135deg, var(--info-color) 0%, color-mix(in srgb, var(--info-color) 70%, var(--secondary-color)) 100%);
-    }
-    button#calculate-hours-btn:hover {
-        /* Adjust hover shadow color */
-        box-shadow: 0 8px 20px color-mix(in srgb, var(--info-color) 30%, transparent);
-        opacity: 0.95;
-    }
-     button#calculate-hours-btn:active {
-         box-shadow: 0 4px 10px color-mix(in srgb, var(--info-color) 20%, transparent);
-     }
-
-
-    .result-card, .actual-exit-card {
-      display: none; /* Initially hidden, shown by JS */
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    .result-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 5px; /* Added slight horizontal padding */
-      border-bottom: 1px solid var(--input-border);
-      font-size: calc(var(--base-font-size) * 0.95);
-      transition: border-color var(--transition-speed), background-color 0.2s ease; /* Added background transition */
-    }
-     .result-item:hover { /* Subtle hover highlight */
-        background-color: color-mix(in srgb, var(--bg-color) 50%, var(--card-bg));
-     }
-
-
-    .result-item:last-child {
-      border-bottom: none;
-    }
-
-    .result-label {
-      font-weight: 400;
-      color: var(--text-color-dark);
-      display: flex;
-      align-items: center;
-      gap: 10px; /* Increased gap */
-      transition: color var(--transition-speed);
-    }
-     .result-label .fas {
-        color: var(--icon-color);
-        width: 18px; /* Ensure alignment */
-        text-align: center;
-        transition: color var(--transition-speed);
-        font-size: calc(var(--base-font-size) * 1.1); /* Slightly larger icon */
-    }
-
-    .result-value {
-      font-weight: 600;
-      color: var(--text-color-dark);
-      transition: color var(--transition-speed);
-      padding: 3px 6px; /* Add padding for better visual separation */
-      border-radius: 5px; /* Rounded corners */
-      background-color: transparent; /* Default background */
-       transition: color var(--transition-speed), background-color var(--transition-speed);
-    }
-
-    .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 15%, transparent); }
-    .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 15%, transparent); }
-    .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 15%, transparent); }
-    /* Adjust dark theme results */
-    .dark-theme .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 25%, transparent); }
-    .dark-theme .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 25%, transparent); }
-    .dark-theme .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 25%, transparent); }
+        input[type="time"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: var(--base-font-size);
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius-md);
+            background-color: var(--input-bg);
+            color: var(--text-color-dark);
+            transition: border-color var(--transition-fast), background-color var(--transition-medium), color var(--transition-medium), box-shadow var(--transition-fast);
+            appearance: none; /* Remove default styling */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        input[type="time"]:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 20%, transparent);
+            background-color: var(--card-bg); /* Slightly change bg on focus */
+        }
+        /* Custom time input indicator */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>') no-repeat center center;
+            background-size: 16px 16px;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: opacity var(--transition-fast);
+            filter: var(--dark-theme) invert(0.8); /* Adjust for dark theme */
+        }
+        input[type="time"]:hover::-webkit-calendar-picker-indicator {
+            opacity: 0.9;
+        }
+        .dark-theme input[type="time"]::-webkit-calendar-picker-indicator {
+             filter: invert(0.8);
+        }
 
 
-    .divider {
-      margin: 15px 0;
-      border-top: 1px solid var(--input-border);
-      transition: border-color var(--transition-speed);
-    }
+        /* --- Buttons --- */
+        button.main-action {
+            background: var(--gradient-bg);
+            color: var(--text-color-light);
+            border: none;
+            padding: 13px 20px;
+            font-size: calc(var(--base-font-size) * 1.0);
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease, opacity var(--transition-medium);
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            opacity: 0;
+            transform: translateY(5px);
+            animation: slideFadeIn 0.4s ease forwards;
+        }
+        button#calculate-btn { animation-delay: 0.3s; }
+        button#calculate-hours-btn { animation-delay: 0.4s; } /* Delay after input */
 
-    /* Simple pulse animation for result display */
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-    }
+        button.main-action::before { /* Subtle shine effect */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+            transition: left var(--transition-slow) ease-in-out;
+            opacity: 0.7;
+        }
+        button.main-action:hover {
+            transform: translateY(-2px) scale(1.01); /* Lift and slightly enlarge */
+            box-shadow: 0 7px 15px var(--shadow-hover-color);
+            opacity: 0.95;
+        }
+        button.main-action:hover::before {
+            left: 100%;
+        }
+        button.main-action:active {
+            transform: translateY(0) scale(0.99); /* Press down effect */
+            box-shadow: 0 3px 8px var(--shadow-active-color);
+            opacity: 0.9;
+        }
+        button.main-action .fas {
+            margin-right: 2px; /* Adjust icon spacing */
+            transition: transform 0.2s ease;
+        }
+        button.main-action:hover .fas {
+            transform: rotate(-5deg) scale(1.05); /* Slight icon animation */
+        }
 
-    .result-card.show, .actual-exit-card.show {
-        display: block;
-        animation: fadeIn 0.5s ease forwards, pulse 0.6s ease-in-out 0.3s; /* Chain animations */
-    }
-
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); } /* Fade in slightly from below */
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-        from {
+        /* --- Result Cards & Items --- */
+        .result-card, .actual-exit-card {
+            display: none; /* Initially hidden */
             opacity: 0;
             transform: translateY(10px);
+            animation: resultFadeIn 0.5s ease forwards;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .result-card.show, .actual-exit-card.show {
+            display: block;
+            /* Animation applied via class */
         }
-    }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-      body { padding: 15px; }
-      .container { margin: 10px auto; }
-      h1 { font-size: calc(var(--base-font-size) * 1.4); gap: 8px;}
-       h1 .fas { font-size: calc(var(--base-font-size) * 1.3); }
-      .card { padding: 20px; }
-      header { margin-bottom: 25px; }
-      button.main-action { padding: 12px 15px; font-size: var(--base-font-size); }
-      .theme-toggle button { padding: 6px 10px; font-size: calc(var(--base-font-size) * 0.85); }
-      .result-label { gap: 8px; }
-      .result-label .fas { width: 16px; font-size: var(--base-font-size); }
-      .result-value { font-size: calc(var(--base-font-size) * 0.9); }
-    }
-  </style>
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5px;
+            border-bottom: 1px solid var(--input-border);
+            font-size: calc(var(--base-font-size) * 0.9);
+            transition: border-color var(--transition-medium), background-color var(--transition-fast) ease;
+            opacity: 0;
+            transform: translateX(-10px); /* Slide in from left */
+            animation: slideFadeIn 0.4s ease forwards;
+        }
+        /* Stagger result items */
+        .result-card .result-item:nth-child(1) { animation-delay: 0.1s; }
+        .result-card .result-item:nth-child(2) { animation-delay: 0.18s; }
+        .result-card .result-item:nth-child(3) { animation-delay: 0.26s; }
+        .actual-exit-card .result-item:nth-child(1) { animation-delay: 0.1s; }
+        .actual-exit-card .result-item:nth-child(2) { animation-delay: 0.18s; }
+
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item:hover {
+            background-color: color-mix(in srgb, var(--bg-color) 50%, var(--card-bg));
+        }
+
+        .result-label {
+            font-weight: 400;
+            color: var(--text-color-medium);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color var(--transition-medium);
+        }
+        .result-label .fas {
+            color: var(--secondary-color);
+            width: 18px;
+            text-align: center;
+            transition: color var(--transition-medium);
+            font-size: calc(var(--base-font-size) * 1.05);
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--text-color-dark);
+            padding: 4px 8px;
+            border-radius: var(--border-radius-sm);
+            background-color: color-mix(in srgb, var(--text-color-muted) 10%, transparent);
+            transition: color var(--transition-medium), background-color var(--transition-medium);
+            min-width: 50px; /* Ensure minimum width */
+            text-align: right;
+        }
+        .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 15%, transparent); }
+        .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 15%, transparent); }
+        .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 15%, transparent); }
+        /* Adjust dark theme results */
+        .dark-theme .result-value { background-color: color-mix(in srgb, var(--text-color-muted) 20%, transparent); }
+        .dark-theme .result-value.success { background-color: color-mix(in srgb, var(--success-color) 25%, transparent); }
+        .dark-theme .result-value.info { background-color: color-mix(in srgb, var(--info-color) 25%, transparent); }
+        .dark-theme .result-value.warning { background-color: color-mix(in srgb, var(--warning-color) 25%, transparent); }
+
+        .divider {
+            margin: 15px 0;
+            border-top: 1px dashed var(--input-border); /* Dashed divider */
+            transition: border-color var(--transition-medium);
+            opacity: 0.6;
+        }
+
+        /* --- Rules Section --- */
+        .rules-section {
+            max-height: 0; /* Initially hidden */
+            overflow: hidden;
+            transition: max-height var(--transition-medium) ease-in-out, padding var(--transition-medium) ease-in-out, margin var(--transition-medium) ease-in-out;
+            background-color: color-mix(in srgb, var(--card-bg) 95%, var(--bg-color)); /* Slightly different bg */
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 0;
+            padding: 0 30px;
+            border: 1px solid transparent;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+        .rules-section.show {
+            max-height: 500px; /* Adjust as needed */
+            padding: 25px 30px;
+            margin-bottom: 25px; /* Add margin when shown */
+            border-color: var(--input-border);
+        }
+        .rules-section h2 {
+            font-size: calc(var(--base-font-size) * 1.1);
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rules-section ul {
+            list-style: none; /* Remove default bullets */
+            padding-left: 5px;
+        }
+        .rules-section li {
+            margin-bottom: 12px;
+            font-size: calc(var(--base-font-size) * 0.9);
+            color: var(--text-color-medium);
+            position: relative;
+            padding-left: 25px; /* Space for custom bullet */
+        }
+        .rules-section li::before { /* Custom bullet */
+            content: "\f105"; /* Font Awesome angle-right */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 1px;
+            color: var(--accent-color);
+            transition: color var(--transition-medium);
+            font-size: calc(var(--base-font-size) * 0.95);
+        }
+        .rules-section strong {
+            font-weight: 600;
+            color: var(--text-color-dark);
+        }
+        .rules-section code {
+            background-color: color-mix(in srgb, var(--input-border) 50%, transparent);
+            padding: 2px 5px;
+            border-radius: var(--border-radius-sm);
+            font-size: 85%;
+            color: var(--accent-color);
+        }
+
+        /* --- Animations --- */
+        @keyframes slideFadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes resultFadeIn {
+             from { opacity: 0; transform: translateY(10px); }
+             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Add a subtle pulse to newly calculated results */
+        @keyframes pulse-value {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .result-value.updated {
+            animation: pulse-value 0.4s ease-in-out;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 600px) {
+            body { padding: 15px; }
+            .container { margin: 10px auto; }
+            h1 { font-size: calc(var(--base-font-size) * 1.3); gap: 8px;}
+            h1 .fas { font-size: calc(var(--base-font-size) * 1.2); }
+            .card, .rules-section.show { padding: 20px; }
+            header { margin-bottom: 20px; padding-bottom: 10px; }
+            button.main-action { padding: 12px 15px; font-size: var(--base-font-size); }
+            .icon-button { padding: 7px 9px; font-size: calc(var(--base-font-size) * 0.85); min-width: 36px; }
+            .result-label { gap: 8px; }
+            .result-label .fas { width: 16px; font-size: var(--base-font-size); }
+            .result-value { font-size: calc(var(--base-font-size) * 0.85); }
+            .rules-section li { padding-left: 20px; }
+        }
+
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><i class="fas fa-stopwatch"></i> Time Tracker</h1>
-      <div class="theme-toggle">
-         <button id="theme-toggle-btn">
-             <i class="fas fa-moon"></i> <!-- Placeholder icon, JS will set correctly -->
-             <span id="theme-btn-text">Tema Scuro</span>
-         </button>
-      </div>
-    </header>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-stopwatch"></i> Time Tracker</h1>
+            <div class="header-controls">
+                <button id="rules-toggle-btn" class="icon-button" title="Mostra/Nascondi Regole">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+                <button id="theme-toggle-btn" class="icon-button" title="Cambia Tema">
+                    <i class="fas fa-moon"></i> </button>
+            </div>
+        </header>
 
-    <div class="card" id="input-card"> <!-- Added ID for potential focus -->
-      <div class="form-group">
-        <label for="entry-time"><i class="fas fa-right-to-bracket"></i>Orario di ingresso:</label>
-        <input type="time" id="entry-time" required>
-      </div>
-      <div class="form-group">
-        <label for="lunch-start"><i class="fas fa-utensils"></i>Uscita per pausa pranzo:</label>
-        <input type="time" id="lunch-start">
-      </div>
-      <div class="form-group">
-        <label for="lunch-end"><i class="fas fa-person-walking-arrow-right"></i>Rientro dalla pausa pranzo:</label>
-        <input type="time" id="lunch-end">
-      </div>
-      <button id="calculate-btn" class="main-action"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
+        <section class="rules-section card" id="rules-section">
+            <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
+            <ul>
+                <li>La giornata lavorativa standard è di <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>).</li>
+                <li><strong>Pausa Pranzo:</strong> Se inserisci sia l'orario di uscita che di rientro per la pausa:
+                    <ul>
+                        <li>Viene conteggiata una durata minima di <strong>30 minuti</strong>, anche se la pausa effettiva è stata più breve.</li>
+                        <li>Se la pausa effettiva supera i 30 minuti, ottieni un <strong>"bonus"</strong>: il tempo eccedente (fino a un massimo di <strong>10 minuti</strong>) viene sottratto dal totale delle ore da lavorare.</li>
+                    </ul>
+                </li>
+                 <li>Se non inserisci gli orari di pausa, non viene applicata nessuna pausa o bonus.</li>
+                <li><strong>Orario di Uscita Previsto:</strong> Calcolato come: <code>Orario Ingresso + 7h 12m + Durata Pausa Effettiva (min 30m) - Bonus Pausa (max 10m)</code>.</li>
+                <li><strong>Totale Ore Lavorate:</strong> Calcolato come: <code>Orario Uscita Effettivo - Orario Ingresso - Durata Pausa Effettiva (se effettuata durante l'orario) + Bonus Pausa</code>.</li>
+            </ul>
+        </section>
+
+        <div class="card" id="input-card">
+            <div class="form-group">
+                <label for="entry-time"><i class="fas fa-right-to-bracket"></i>Orario di ingresso:</label>
+                <input type="time" id="entry-time" required>
+            </div>
+            <div class="form-group">
+                <label for="lunch-start"><i class="fas fa-utensils"></i>Uscita per pausa pranzo:</label>
+                <input type="time" id="lunch-start">
+            </div>
+            <div class="form-group">
+                <label for="lunch-end"><i class="fas fa-person-walking-arrow-right"></i>Rientro dalla pausa pranzo:</label>
+                <input type="time" id="lunch-end">
+            </div>
+            <button id="calculate-btn" class="main-action"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
+        </div>
+
+        <div class="card result-card" id="result-card"> <div class="result-item">
+                <span class="result-label"><i class="fas fa-clock"></i>Durata pausa (effettiva):</span>
+                <span class="result-value info" id="lunch-duration">--:--</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label"><i class="fas fa-gift"></i>Bonus pausa applicato:</span>
+                <span class="result-value" id="lunch-bonus">--</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label"><i class="fas fa-right-from-bracket"></i>Orario previsto di uscita:</span>
+                <span class="result-value success" id="exit-time">--:--</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-group"> <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
+                <input type="time" id="actual-exit-time">
+            </div>
+            <button id="calculate-hours-btn" class="main-action"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
+        </div>
+
+        <div class="card actual-exit-card" id="actual-exit-card"> <div class="result-item">
+                <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
+                <span class="result-value warning" id="total-hours">--:--</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (7h 12m):</span>
+                <span class="result-value" id="hours-difference">--:--</span>
+            </div>
+        </div>
     </div>
 
-    <div class="card result-card" id="result-card"> <!-- Initially hidden -->
-      <div class="result-item">
-        <span class="result-label"><i class="fas fa-clock"></i>Durata pausa (effettiva):</span>
-        <span class="result-value info" id="lunch-duration">--:--</span>
-      </div>
-      <div class="result-item">
-        <span class="result-label"><i class="fas fa-gift"></i>Bonus pausa applicato:</span>
-        <span class="result-value" id="lunch-bonus">--</span>
-      </div>
-      <div class="result-item">
-        <span class="result-label"><i class="fas fa-right-from-bracket"></i>Orario previsto di uscita:</span>
-        <span class="result-value success" id="exit-time">--:--</span>
-      </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- UI Elements ---
+            const themeToggleButton = document.getElementById("theme-toggle-btn");
+            const themeButtonIcon = themeToggleButton.querySelector('.fas');
+            const rulesToggleButton = document.getElementById("rules-toggle-btn");
+            const rulesSection = document.getElementById("rules-section");
 
-      <div class="divider"></div>
+            const calculateBtn = document.getElementById("calculate-btn");
+            const calculateHoursBtn = document.getElementById("calculate-hours-btn");
+            const resultCard = document.getElementById("result-card");
+            const actualExitCard = document.getElementById("actual-exit-card");
 
-      <div class="form-group"> <!-- This group belongs here logically -->
-        <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
-        <input type="time" id="actual-exit-time">
-      </div>
-      <button id="calculate-hours-btn" class="main-action"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
-    </div>
+            // --- Inputs ---
+            const entryTimeInput = document.getElementById("entry-time");
+            const lunchStartInput = document.getElementById("lunch-start");
+            const lunchEndInput = document.getElementById("lunch-end");
+            const actualExitTimeInput = document.getElementById("actual-exit-time");
 
-    <div class="card actual-exit-card" id="actual-exit-card"> <!-- Initially hidden -->
-      <div class="result-item">
-        <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
-        <span class="result-value warning" id="total-hours">--:--</span>
-      </div>
-      <div class="result-item">
-        <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (7h 12m):</span>
-        <span class="result-value" id="hours-difference">--:--</span>
-      </div>
-    </div>
-  </div>
+            // --- Outputs ---
+            const lunchDurationEl = document.getElementById("lunch-duration");
+            const lunchBonusEl = document.getElementById("lunch-bonus");
+            const exitTimeEl = document.getElementById("exit-time");
+            const totalHoursEl = document.getElementById("total-hours");
+            const hoursDifferenceEl = document.getElementById("hours-difference");
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // UI Elements
-      const themeToggleButton = document.getElementById("theme-toggle-btn");
-      const themeButtonText = document.getElementById("theme-btn-text");
-      const themeButtonIcon = themeToggleButton.querySelector('.fas');
-      const calculateBtn = document.getElementById("calculate-btn");
-      const calculateHoursBtn = document.getElementById("calculate-hours-btn");
-      const resultCard = document.getElementById("result-card");
-      const actualExitCard = document.getElementById("actual-exit-card");
+            // --- Constants ---
+            const STANDARD_WORKDAY_MINUTES = 7 * 60 + 12; // 7h 12m
+            const MIN_LUNCH_BREAK_MINUTES = 30;
+            const MAX_LUNCH_BONUS_MINUTES = 10;
 
-      // Inputs
-      const entryTimeInput = document.getElementById("entry-time");
-      const lunchStartInput = document.getElementById("lunch-start");
-      const lunchEndInput = document.getElementById("lunch-end");
-      const actualExitTimeInput = document.getElementById("actual-exit-time");
+            // --- Theme Handling ---
+            function setTheme(isDark) {
+                document.body.classList.toggle("dark-theme", isDark);
+                themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`; // Update icon class directly
+                themeToggleButton.title = isDark ? "Passa a Tema Chiaro" : "Passa a Tema Scuro";
+                localStorage.setItem("darkTheme", isDark ? "true" : "false");
+            }
 
-      // Outputs
-      const lunchDurationEl = document.getElementById("lunch-duration");
-      const lunchBonusEl = document.getElementById("lunch-bonus");
-      const exitTimeEl = document.getElementById("exit-time");
-      const totalHoursEl = document.getElementById("total-hours");
-      const hoursDifferenceEl = document.getElementById("hours-difference");
+            const savedTheme = localStorage.getItem("darkTheme") === "true";
+            setTheme(savedTheme); // Apply saved theme on load
 
-      // --- Theme Handling ---
-      function setTheme(isDark) {
-        document.body.classList.toggle("dark-theme", isDark);
-        themeButtonText.textContent = isDark ? "Tema Chiaro" : "Tema Scuro";
-        themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`; // Update icon class directly
-        localStorage.setItem("darkTheme", isDark ? "true" : "false"); // Store as string
-      }
+            themeToggleButton.addEventListener("click", () => {
+                setTheme(!document.body.classList.contains("dark-theme"));
+            });
 
-      const savedTheme = localStorage.getItem("darkTheme") === "true";
-      setTheme(savedTheme); // Apply saved theme on load
-
-      themeToggleButton.addEventListener("click", () => {
-        setTheme(!document.body.classList.contains("dark-theme"));
-      });
-
-      // --- Utility Functions ---
-      function timeToMinutes(timeStr) {
-        if (!timeStr) return null; // Return null for empty inputs
-        const [hours, minutes] = timeStr.split(":").map(Number);
-        if (isNaN(hours) || isNaN(minutes)) return null; // Invalid format
-        return hours * 60 + minutes;
-      }
-
-      function minutesToTimeString(totalMinutes) {
-         if (totalMinutes === null || isNaN(totalMinutes)) return "--:--"; // Handle invalid input
-         const isNegative = totalMinutes < 0;
-         const absMinutes = Math.abs(totalMinutes);
-         const hours = Math.floor(absMinutes / 60);
-         const minutes = Math.round(absMinutes % 60); // Round minutes
-         const sign = isNegative ? "-" : "";
-         // Adjust for rounding up to 60 minutes
-         if (minutes === 60) {
-            return `${sign}${(hours + 1).toString().padStart(2, "0")}:00`;
-         }
-         return `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-      }
-
-       function displayCard(cardElement) {
-            // Remove 'show' class from other cards first if necessary
-            if (cardElement === resultCard) actualExitCard.classList.remove('show');
-            if (cardElement === actualExitCard) resultCard.classList.remove('show'); // Optional: hide result when showing actual
-
-            cardElement.classList.add('show'); // Add class to trigger animation
-       }
+            // --- Rules Section Toggle ---
+             rulesToggleButton.addEventListener("click", () => {
+                 const isShown = rulesSection.classList.toggle("show");
+                 rulesToggleButton.title = isShown ? "Nascondi Regole" : "Mostra Regole";
+                 // Change icon based on state
+                 rulesToggleButton.querySelector('.fas').className = `fas ${isShown ? 'fa-times-circle' : 'fa-info-circle'}`;
+             });
 
 
-      // --- Calculation Logic ---
-      calculateBtn.addEventListener("click", function() {
-        const entryMinutes = timeToMinutes(entryTimeInput.value);
-        const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
-        const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+            // --- Utility Functions ---
+            function timeToMinutes(timeStr) {
+                if (!timeStr) return null;
+                const [hours, minutes] = timeStr.split(":").map(Number);
+                if (isNaN(hours) || isNaN(minutes)) return null;
+                return hours * 60 + minutes;
+            }
 
-        if (entryMinutes === null) {
-          alert("Per favore, inserisci un orario di ingresso valido.");
-          entryTimeInput.focus();
-          return;
-        }
+            function minutesToTimeString(totalMinutes) {
+                if (totalMinutes === null || isNaN(totalMinutes)) return "--:--";
+                const isNegative = totalMinutes < 0;
+                const absMinutes = Math.abs(totalMinutes);
+                let hours = Math.floor(absMinutes / 60);
+                let minutes = Math.round(absMinutes % 60); // Round minutes
 
-        let effectiveLunchMinutes = 0;
-        let lunchBonusMinutes = 0;
+                // Handle rounding up to 60 minutes -> increment hour
+                if (minutes === 60) {
+                    hours += 1;
+                    minutes = 0;
+                }
 
-        // Validate and calculate lunch break
-        if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
-          if (lunchEndMinutes <= lunchStartMinutes) {
-            alert("L'orario di rientro dalla pausa pranzo deve essere successivo all'orario di uscita per la pausa.");
-            lunchEndInput.focus();
-            return;
-          }
-          if (lunchStartMinutes < entryMinutes) {
-            alert("L'orario di uscita per la pausa pranzo non può essere precedente all'orario di ingresso.");
-            lunchStartInput.focus();
-            return;
-          }
-          // Actual duration of the break
-          const actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
-          // Effective break duration for calculation (minimum 30 min if taken)
-          effectiveLunchMinutes = Math.max(actualLunchDuration, 30);
-           // Calculate bonus (max 10 min for breaks > 30 min)
-           lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - 30), 10);
+                const sign = isNegative ? "-" : "";
+                return `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+            }
 
-           lunchDurationEl.textContent = minutesToTimeString(actualLunchDuration); // Show actual duration
+            // Function to show/hide cards with animation trigger
+            function displayCard(cardElement) {
+                 // Ensure other result cards are hidden before showing the new one
+                 if (cardElement === resultCard && actualExitCard.classList.contains('show')) {
+                     actualExitCard.classList.remove('show');
+                     // Allow time for fade out before fade in (optional)
+                     // setTimeout(() => cardElement.classList.add('show'), 150);
+                 } else if (cardElement === actualExitCard && resultCard.classList.contains('show')) {
+                     // Optionally keep resultCard visible when showing actualExitCard
+                     // resultCard.classList.remove('show');
+                 }
 
-        } else if (lunchStartMinutes !== null || lunchEndMinutes !== null) {
-          alert("Inserisci sia l'orario di uscita che di rientro per la pausa pranzo, oppure lasciali entrambi vuoti.");
-          return;
-        } else {
-             // No break taken
-             lunchDurationEl.textContent = "Nessuna";
-             lunchBonusMinutes = 0; // No bonus if no break
-             effectiveLunchMinutes = 0; // No break time added
-        }
+                 // Use requestAnimationFrame to ensure the class change triggers animation reliably
+                 requestAnimationFrame(() => {
+                    cardElement.classList.add('show');
+                 });
+            }
+
+            // Function to add a temporary class for pulse animation
+            function pulseElement(element) {
+                element.classList.add('updated');
+                // Remove the class after the animation completes
+                element.addEventListener('animationend', () => {
+                    element.classList.remove('updated');
+                }, { once: true }); // Important: remove listener after one run
+            }
+
+            // --- Alert Function (Simple Modal Alternative) ---
+            function showAppAlert(message) {
+                // Simple browser alert for now, could be replaced with a custom modal
+                alert(message);
+            }
+
+            // --- Calculation Logic ---
+            calculateBtn.addEventListener("click", function() {
+                const entryMinutes = timeToMinutes(entryTimeInput.value);
+                const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
+                const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+
+                if (entryMinutes === null) {
+                    showAppAlert("Per favore, inserisci un orario di ingresso valido.");
+                    entryTimeInput.focus();
+                    return;
+                }
+
+                let actualLunchDuration = 0;
+                let effectiveLunchMinutes = 0;
+                let lunchBonusMinutes = 0;
+
+                // Validate and calculate lunch break
+                const hasLunchStart = lunchStartMinutes !== null;
+                const hasLunchEnd = lunchEndMinutes !== null;
+
+                if (hasLunchStart && hasLunchEnd) {
+                    if (lunchEndMinutes <= lunchStartMinutes) {
+                        showAppAlert("L'orario di rientro dalla pausa pranzo deve essere successivo all'orario di uscita.");
+                        lunchEndInput.focus();
+                        return;
+                    }
+                    if (lunchStartMinutes < entryMinutes) {
+                        // Allow lunch before entry for flexibility, but maybe warn?
+                        // console.warn("Lunch start time is before entry time.");
+                    }
+                    // Actual duration of the break
+                    actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
+                    // Effective break duration for calculation (minimum 30 min if taken)
+                    effectiveLunchMinutes = Math.max(actualLunchDuration, MIN_LUNCH_BREAK_MINUTES);
+                    // Calculate bonus (max 10 min for breaks > 30 min)
+                    lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
+
+                    lunchDurationEl.textContent = minutesToTimeString(actualLunchDuration);
+                    pulseElement(lunchDurationEl);
+
+                } else if (hasLunchStart || hasLunchEnd) {
+                    showAppAlert("Inserisci sia l'orario di uscita che di rientro per la pausa pranzo, oppure lasciali entrambi vuoti.");
+                    if (hasLunchStart) lunchEndInput.focus(); else lunchStartInput.focus();
+                    return;
+                } else {
+                    // No break taken
+                    lunchDurationEl.textContent = "Nessuna";
+                    pulseElement(lunchDurationEl);
+                    lunchBonusMinutes = 0;
+                    effectiveLunchMinutes = 0;
+                    actualLunchDuration = 0; // Ensure it's 0 if no break
+                }
+
+                // Calculate exit time: Entry + Workday + Effective Break - Bonus
+                const exitTimeTotalMinutes = entryMinutes + STANDARD_WORKDAY_MINUTES + effectiveLunchMinutes - lunchBonusMinutes;
+
+                lunchBonusEl.textContent = lunchBonusMinutes > 0 ? `${lunchBonusMinutes} min` : "Nessuno";
+                exitTimeEl.textContent = minutesToTimeString(exitTimeTotalMinutes);
+                pulseElement(lunchBonusEl);
+                pulseElement(exitTimeEl);
 
 
-        const workdayMinutes = 7 * 60 + 12; // 7 hours 12 minutes
-        // Calculate exit time: Entry + Workday + Effective Break - Bonus
-        const exitTimeTotalMinutes = entryMinutes + workdayMinutes + effectiveLunchMinutes - lunchBonusMinutes;
+                // Show result card
+                displayCard(resultCard);
 
-        lunchBonusEl.textContent = lunchBonusMinutes > 0 ? `${lunchBonusMinutes} min` : "Nessuno";
-        exitTimeEl.textContent = minutesToTimeString(exitTimeTotalMinutes);
+                // Optionally clear/hide the second result card and its inputs/outputs
+                actualExitCard.classList.remove('show');
+                actualExitTimeInput.value = ""; // Clear previous actual exit time
+                totalHoursEl.textContent = "--:--";
+                hoursDifferenceEl.textContent = "--:--";
+                hoursDifferenceEl.className = "result-value"; // Reset class
+            });
 
-        // Show result card
-        displayCard(resultCard);
-        // Optionally clear/hide the second result card
-        actualExitCard.classList.remove('show');
-        actualExitTimeInput.value = ""; // Clear previous actual exit time
-        totalHoursEl.textContent = "--:--";
-        hoursDifferenceEl.textContent = "--:--";
-        hoursDifferenceEl.className = "result-value"; // Reset class
-      });
+            calculateHoursBtn.addEventListener("click", function() {
+                const entryMinutes = timeToMinutes(entryTimeInput.value);
+                const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
+                const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+                const actualExitMinutes = timeToMinutes(actualExitTimeInput.value);
 
-      calculateHoursBtn.addEventListener("click", function() {
-        const entryMinutes = timeToMinutes(entryTimeInput.value);
-        const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
-        const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
-        const actualExitMinutes = timeToMinutes(actualExitTimeInput.value);
-    
-        if (entryMinutes === null || actualExitMinutes === null) {
-          alert("Inserisci un orario di ingresso e un orario effettivo di uscita validi.");
-          if(entryMinutes === null) entryTimeInput.focus();
-          else actualExitTimeInput.focus();
-          return;
-        }
-    
-        let lunchDuration = 0;
-        let lunchBonus = 0;
-    
-        if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
-          if (lunchEndMinutes > lunchStartMinutes) {
-              lunchDuration = lunchEndMinutes - lunchStartMinutes;
-              lunchDuration = Math.max(lunchDuration, 30); // Ensure minimum 30 min break counted if taken
-              lunchBonus = Math.min(Math.max(0, lunchDuration - 30), 10);
-          }
-        }
-    
-        let totalWorkMinutes = actualExitMinutes - entryMinutes - (lunchDuration > 0 ? lunchDuration : 0) + lunchBonus;
+                if (entryMinutes === null || actualExitMinutes === null) {
+                    showAppAlert("Inserisci un orario di ingresso e un orario effettivo di uscita validi.");
+                    if(entryMinutes === null) entryTimeInput.focus();
+                    else actualExitTimeInput.focus();
+                    return;
+                }
 
-        let actualLunchDuration = 0;
-        // Recalculate actual break duration if it happened *during* work hours
-        if (lunchStartMinutes !== null && lunchEndMinutes !== null &&
-            lunchStartMinutes >= entryMinutes && lunchEndMinutes <= actualExitMinutes &&
-            lunchEndMinutes > lunchStartMinutes) {
-             actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
-        }
+                let actualLunchDuration = 0;
+                let lunchBonusMinutes = 0; // Recalculate bonus based on actual break
 
-        if (actualExitMinutes < entryMinutes) {
-             totalWorkMinutes += 24 * 60;
-        }
+                // Recalculate actual break duration if it happened *during* work hours
+                 const hasLunchStart = lunchStartMinutes !== null;
+                 const hasLunchEnd = lunchEndMinutes !== null;
 
-        const standardWorkMinutes = 7 * 60 + 12;
-        const differenceMinutes = totalWorkMinutes - standardWorkMinutes;
+                 if (hasLunchStart && hasLunchEnd &&
+                     lunchEndMinutes > lunchStartMinutes) {
+                      // Calculate actual duration only if break happened
+                      actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
+                      // Recalculate bonus based on actual duration
+                      lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
+                 } else {
+                     actualLunchDuration = 0; // No valid break occurred
+                     lunchBonusMinutes = 0;
+                 }
 
-        totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
-        hoursDifferenceEl.textContent = `${differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(differenceMinutes)}`;
+                // Calculate total work minutes: Duration - Actual Break + Bonus
+                let totalWorkDurationMinutes = actualExitMinutes - entryMinutes;
 
+                // Handle overnight work (exit time is on the next day)
+                if (actualExitMinutes < entryMinutes) {
+                    totalWorkDurationMinutes += 24 * 60; // Add minutes in a day
+                }
 
-        // Update difference styling based on value
-        hoursDifferenceEl.className = "result-value"; // Reset classes
-        if (differenceMinutes > 5) { // More than 5 mins extra
-          hoursDifferenceEl.classList.add("success");
-        } else if (differenceMinutes < -5) { // More than 5 mins short
-          hoursDifferenceEl.classList.add("warning");
-        } else { // Within +/- 5 mins
-          hoursDifferenceEl.classList.add("info");
-        }
+                // Subtract actual lunch duration and add back the bonus
+                const totalWorkMinutes = totalWorkDurationMinutes - actualLunchDuration + lunchBonusMinutes;
 
-        // Show the second result card
-         displayCard(actualExitCard);
-      });
+                const differenceMinutes = totalWorkMinutes - STANDARD_WORKDAY_MINUTES;
 
-    });
-  </script>
+                totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
+                hoursDifferenceEl.textContent = `${differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(differenceMinutes)}`;
+                pulseElement(totalHoursEl);
+                pulseElement(hoursDifferenceEl);
+
+                // Update difference styling based on value
+                hoursDifferenceEl.className = "result-value"; // Reset classes
+                if (differenceMinutes > 5) { // More than 5 mins extra
+                    hoursDifferenceEl.classList.add("success");
+                } else if (differenceMinutes < -5) { // More than 5 mins short
+                    hoursDifferenceEl.classList.add("warning");
+                } else { // Within +/- 5 mins
+                    hoursDifferenceEl.classList.add("info");
+                }
+
+                // Show the second result card
+                displayCard(actualExitCard);
+            });
+
+            // Add input event listeners to clear results if inputs change? (Optional UX improvement)
+            // Example:
+            // [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
+            //     input.addEventListener('input', () => {
+            //         resultCard.classList.remove('show');
+            //         actualExitCard.classList.remove('show');
+            //     });
+            // });
+            // actualExitTimeInput.addEventListener('input', () => {
+            //     actualExitCard.classList.remove('show');
+            // });
+
+        });
+    </script>
 </body>
 </html>
