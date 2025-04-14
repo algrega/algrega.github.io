@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker</title>
+    <title>Time Tracker Moderno v2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,7 +36,8 @@
 
             --success-color: hsl(140, 60%, 45%);
             --info-color: hsl(190, 70%, 50%);
-            --warning-color: hsl(40, 80%, 55%);
+            /* Adjusted Warning color to be more reddish/orange */
+            --warning-color: hsl(25, 85%, 55%);
 
             --base-font-size: 16px;
             --border-radius-sm: 6px;
@@ -72,7 +73,8 @@
 
             --success-color: hsl(140, 55%, 60%);
             --info-color: hsl(190, 65%, 65%);
-            --warning-color: hsl(40, 75%, 65%);
+            /* Adjusted Warning color for dark theme */
+            --warning-color: hsl(25, 75%, 65%);
         }
 
         /* --- Global Styles & Resets --- */
@@ -404,23 +406,35 @@
         }
 
         /* --- Rules Section --- */
+        /* MODIFIED CSS for Rules Section to prevent visibility on load */
         .rules-section {
             max-height: 0; /* Initially hidden */
+            opacity: 0; /* Initially transparent */
             overflow: hidden;
-            transition: max-height var(--transition-medium) ease-in-out, padding var(--transition-medium) ease-in-out, margin var(--transition-medium) ease-in-out;
-            background-color: color-mix(in srgb, var(--card-bg) 95%, var(--bg-color)); /* Slightly different bg */
+            background-color: color-mix(in srgb, var(--card-bg) 95%, var(--bg-color));
             border-radius: var(--border-radius-lg);
-            margin-bottom: 0;
+            /* Ensure vertical padding, margin, border are 0 initially */
             padding: 0 30px;
-            border: 1px solid transparent;
+            margin-bottom: 0;
+            border: 0px solid transparent; /* Use border-width 0 */
             box-shadow: 0 5px 15px var(--shadow-color);
+            /* Include all animated properties in transition */
+            transition: max-height var(--transition-medium) ease-in-out,
+                        padding var(--transition-medium) ease-in-out,
+                        margin-bottom var(--transition-medium) ease-in-out,
+                        border-width var(--transition-medium) ease-in-out,
+                        opacity var(--transition-medium) ease-in-out;
         }
         .rules-section.show {
             max-height: 500px; /* Adjust as needed */
+            opacity: 1; /* Visible */
+            /* Restore padding, margin, border when shown */
             padding: 25px 30px;
-            margin-bottom: 25px; /* Add margin when shown */
-            border-color: var(--input-border);
+            margin-bottom: 25px;
+            border: 1px solid var(--input-border);
         }
+        /* END OF MODIFIED CSS */
+
         .rules-section h2 {
             font-size: calc(var(--base-font-size) * 1.1);
             font-weight: 600;
@@ -491,7 +505,9 @@
             .container { margin: 10px auto; }
             h1 { font-size: calc(var(--base-font-size) * 1.3); gap: 8px;}
             h1 .fas { font-size: calc(var(--base-font-size) * 1.2); }
-            .card, .rules-section.show { padding: 20px; }
+            .card { padding: 20px; } /* Apply general card padding */
+             /* Apply specific padding for rules section when shown on mobile */
+            .rules-section.show { padding: 20px; }
             header { margin-bottom: 20px; padding-bottom: 10px; }
             button.main-action { padding: 12px 15px; font-size: var(--base-font-size); }
             .icon-button { padding: 7px 9px; font-size: calc(var(--base-font-size) * 0.85); min-width: 36px; }
@@ -499,6 +515,8 @@
             .result-label .fas { width: 16px; font-size: var(--base-font-size); }
             .result-value { font-size: calc(var(--base-font-size) * 0.85); }
             .rules-section li { padding-left: 20px; }
+            /* Ensure horizontal padding is maintained on mobile when rules are hidden */
+            .rules-section { padding-left: 20px; padding-right: 20px; }
         }
 
     </style>
@@ -506,7 +524,7 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-stopwatch"></i> Time Tracker</h1>
+            <h1><i class="fas fa-stopwatch-20"></i> Time Tracker</h1>
             <div class="header-controls">
                 <button id="rules-toggle-btn" class="icon-button" title="Mostra/Nascondi Regole">
                     <i class="fas fa-info-circle"></i>
@@ -517,7 +535,7 @@
         </header>
 
         <section class="rules-section card" id="rules-section">
-            <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
+             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
             <ul>
                 <li>La giornata lavorativa standard è di <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>).</li>
                 <li><strong>Pausa Pranzo:</strong> Se inserisci sia l'orario di uscita che di rientro per la pausa:
@@ -571,12 +589,10 @@
 
         <div class="card actual-exit-card" id="actual-exit-card"> <div class="result-item">
                 <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
-                <span class="result-value warning" id="total-hours">--:--</span>
-            </div>
+                <span class="result-value" id="total-hours">--:--</span> </div>
             <div class="result-item">
                 <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (7h 12m):</span>
-                <span class="result-value" id="hours-difference">--:--</span>
-            </div>
+                <span class="result-value" id="hours-difference">--:--</span> </div>
         </div>
     </div>
 
@@ -665,11 +681,8 @@
                  // Ensure other result cards are hidden before showing the new one
                  if (cardElement === resultCard && actualExitCard.classList.contains('show')) {
                      actualExitCard.classList.remove('show');
-                     // Allow time for fade out before fade in (optional)
-                     // setTimeout(() => cardElement.classList.add('show'), 150);
                  } else if (cardElement === actualExitCard && resultCard.classList.contains('show')) {
                      // Optionally keep resultCard visible when showing actualExitCard
-                     // resultCard.classList.remove('show');
                  }
 
                  // Use requestAnimationFrame to ensure the class change triggers animation reliably
@@ -681,20 +694,19 @@
             // Function to add a temporary class for pulse animation
             function pulseElement(element) {
                 element.classList.add('updated');
-                // Remove the class after the animation completes
                 element.addEventListener('animationend', () => {
                     element.classList.remove('updated');
-                }, { once: true }); // Important: remove listener after one run
+                }, { once: true });
             }
 
             // --- Alert Function (Simple Modal Alternative) ---
             function showAppAlert(message) {
-                // Simple browser alert for now, could be replaced with a custom modal
                 alert(message);
             }
 
             // --- Calculation Logic ---
             calculateBtn.addEventListener("click", function() {
+                // ... (calculation logic remains the same) ...
                 const entryMinutes = timeToMinutes(entryTimeInput.value);
                 const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
                 const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
@@ -709,7 +721,6 @@
                 let effectiveLunchMinutes = 0;
                 let lunchBonusMinutes = 0;
 
-                // Validate and calculate lunch break
                 const hasLunchStart = lunchStartMinutes !== null;
                 const hasLunchEnd = lunchEndMinutes !== null;
 
@@ -719,34 +730,23 @@
                         lunchEndInput.focus();
                         return;
                     }
-                    if (lunchStartMinutes < entryMinutes) {
-                        // Allow lunch before entry for flexibility, but maybe warn?
-                        // console.warn("Lunch start time is before entry time.");
-                    }
-                    // Actual duration of the break
                     actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
-                    // Effective break duration for calculation (minimum 30 min if taken)
                     effectiveLunchMinutes = Math.max(actualLunchDuration, MIN_LUNCH_BREAK_MINUTES);
-                    // Calculate bonus (max 10 min for breaks > 30 min)
                     lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
-
                     lunchDurationEl.textContent = minutesToTimeString(actualLunchDuration);
                     pulseElement(lunchDurationEl);
-
                 } else if (hasLunchStart || hasLunchEnd) {
                     showAppAlert("Inserisci sia l'orario di uscita che di rientro per la pausa pranzo, oppure lasciali entrambi vuoti.");
                     if (hasLunchStart) lunchEndInput.focus(); else lunchStartInput.focus();
                     return;
                 } else {
-                    // No break taken
                     lunchDurationEl.textContent = "Nessuna";
                     pulseElement(lunchDurationEl);
                     lunchBonusMinutes = 0;
                     effectiveLunchMinutes = 0;
-                    actualLunchDuration = 0; // Ensure it's 0 if no break
+                    actualLunchDuration = 0;
                 }
 
-                // Calculate exit time: Entry + Workday + Effective Break - Bonus
                 const exitTimeTotalMinutes = entryMinutes + STANDARD_WORKDAY_MINUTES + effectiveLunchMinutes - lunchBonusMinutes;
 
                 lunchBonusEl.textContent = lunchBonusMinutes > 0 ? `${lunchBonusMinutes} min` : "Nessuno";
@@ -754,19 +754,18 @@
                 pulseElement(lunchBonusEl);
                 pulseElement(exitTimeEl);
 
-
-                // Show result card
                 displayCard(resultCard);
 
-                // Optionally clear/hide the second result card and its inputs/outputs
                 actualExitCard.classList.remove('show');
-                actualExitTimeInput.value = ""; // Clear previous actual exit time
+                actualExitTimeInput.value = "";
                 totalHoursEl.textContent = "--:--";
                 hoursDifferenceEl.textContent = "--:--";
+                totalHoursEl.className = "result-value"; // Reset class
                 hoursDifferenceEl.className = "result-value"; // Reset class
             });
 
             calculateHoursBtn.addEventListener("click", function() {
+                // ... (calculation logic remains the same until styling) ...
                 const entryMinutes = timeToMinutes(entryTimeInput.value);
                 const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
                 const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
@@ -780,34 +779,24 @@
                 }
 
                 let actualLunchDuration = 0;
-                let lunchBonusMinutes = 0; // Recalculate bonus based on actual break
+                let lunchBonusMinutes = 0;
 
-                // Recalculate actual break duration if it happened *during* work hours
                  const hasLunchStart = lunchStartMinutes !== null;
                  const hasLunchEnd = lunchEndMinutes !== null;
 
-                 if (hasLunchStart && hasLunchEnd &&
-                     lunchEndMinutes > lunchStartMinutes) {
-                      // Calculate actual duration only if break happened
+                 if (hasLunchStart && hasLunchEnd && lunchEndMinutes > lunchStartMinutes) {
                       actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
-                      // Recalculate bonus based on actual duration
                       lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
                  } else {
-                     actualLunchDuration = 0; // No valid break occurred
+                     actualLunchDuration = 0;
                      lunchBonusMinutes = 0;
                  }
 
-                // Calculate total work minutes: Duration - Actual Break + Bonus
                 let totalWorkDurationMinutes = actualExitMinutes - entryMinutes;
-
-                // Handle overnight work (exit time is on the next day)
                 if (actualExitMinutes < entryMinutes) {
-                    totalWorkDurationMinutes += 24 * 60; // Add minutes in a day
+                    totalWorkDurationMinutes += 24 * 60;
                 }
-
-                // Subtract actual lunch duration and add back the bonus
                 const totalWorkMinutes = totalWorkDurationMinutes - actualLunchDuration + lunchBonusMinutes;
-
                 const differenceMinutes = totalWorkMinutes - STANDARD_WORKDAY_MINUTES;
 
                 totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
@@ -815,31 +804,22 @@
                 pulseElement(totalHoursEl);
                 pulseElement(hoursDifferenceEl);
 
-                // Update difference styling based on value
-                hoursDifferenceEl.className = "result-value"; // Reset classes
-                if (differenceMinutes > 5) { // More than 5 mins extra
-                    hoursDifferenceEl.classList.add("success");
-                } else if (differenceMinutes < -5) { // More than 5 mins short
+                // --- MODIFIED STYLING LOGIC ---
+                totalHoursEl.className = "result-value"; // Reset class
+                hoursDifferenceEl.className = "result-value"; // Reset class
+
+                if (differenceMinutes < 0) { // Negative difference
+                    totalHoursEl.classList.add("warning");
                     hoursDifferenceEl.classList.add("warning");
-                } else { // Within +/- 5 mins
+                } else if (differenceMinutes > 5) { // Significantly positive difference
+                    hoursDifferenceEl.classList.add("success");
+                } else { // Close to zero difference
                     hoursDifferenceEl.classList.add("info");
                 }
+                // --- END OF MODIFIED STYLING LOGIC ---
 
-                // Show the second result card
                 displayCard(actualExitCard);
             });
-
-            // Add input event listeners to clear results if inputs change? (Optional UX improvement)
-            // Example:
-            // [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
-            //     input.addEventListener('input', () => {
-            //         resultCard.classList.remove('show');
-            //         actualExitCard.classList.remove('show');
-            //     });
-            // });
-            // actualExitTimeInput.addEventListener('input', () => {
-            //     actualExitCard.classList.remove('show');
-            // });
 
         });
     </script>
