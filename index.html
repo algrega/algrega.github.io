@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker Moderno v2</title>
+    <title>Time Tracker v3 - Part-Time</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,8 +36,7 @@
 
             --success-color: hsl(140, 60%, 45%);
             --info-color: hsl(190, 70%, 50%);
-            /* Adjusted Warning color to be more reddish/orange */
-            --warning-color: hsl(25, 85%, 55%);
+            --warning-color: hsl(25, 85%, 55%); /* Reddish/orange */
 
             --base-font-size: 16px;
             --border-radius-sm: 6px;
@@ -46,6 +45,13 @@
             --transition-fast: 0.15s;
             --transition-medium: 0.3s;
             --transition-slow: 0.5s;
+
+            --toggle-width: 48px;
+            --toggle-height: 26px;
+            --toggle-padding: 3px;
+            --toggle-inactive-bg: hsl(var(--secondary-hue), 15%, 80%);
+            --toggle-active-bg: var(--accent-color);
+            --toggle-thumb-color: white;
         }
 
         .dark-theme {
@@ -73,16 +79,13 @@
 
             --success-color: hsl(140, 55%, 60%);
             --info-color: hsl(190, 65%, 65%);
-            /* Adjusted Warning color for dark theme */
-            --warning-color: hsl(25, 75%, 65%);
+            --warning-color: hsl(25, 75%, 65%); /* Reddish/orange */
+            --toggle-inactive-bg: hsl(var(--secondary-hue), 10%, 40%);
+            --toggle-active-bg: var(--accent-color);
         }
 
         /* --- Global Styles & Resets --- */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -97,408 +100,259 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        .container {
-            max-width: 580px; /* Slightly wider */
-            margin: 20px auto;
-            padding: 0 15px;
-        }
+        .container { max-width: 580px; margin: 20px auto; padding: 0 15px; }
 
         /* --- Header --- */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; padding-bottom: 15px;
             border-bottom: 1px solid var(--input-border);
             transition: border-color var(--transition-medium);
         }
-
         h1 {
-            font-size: calc(var(--base-font-size) * 1.5);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Reduced gap slightly */
-            background: var(--gradient-text);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent; /* Fallback */
-            -webkit-text-fill-color: transparent;
+            font-size: calc(var(--base-font-size) * 1.5); font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            background: var(--gradient-text); -webkit-background-clip: text; background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
         }
-        h1 .fas { /* Style for the icon */
-            font-size: calc(var(--base-font-size) * 1.4); /* Adjust size as needed */
-            opacity: 0.9;
-            /* Ensure the icon also gets the gradient color */
-            background: var(--gradient-text);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
+        h1 .fas {
+            font-size: calc(var(--base-font-size) * 1.4); opacity: 0.9;
+            background: var(--gradient-text); -webkit-background-clip: text; background-clip: text;
+            color: transparent; -webkit-text-fill-color: transparent;
         }
-
-        .header-controls {
-            display: flex;
-            gap: 10px;
-        }
-
+        .header-controls { display: flex; gap: 10px; }
         .icon-button {
-            background: none;
-            border: 1px solid var(--input-border);
-            color: var(--text-color-medium);
-            padding: 8px 10px;
-            border-radius: var(--border-radius-md);
-            cursor: pointer;
-            transition: all var(--transition-fast) ease-out;
-            font-size: calc(var(--base-font-size) * 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Center icon */
-            gap: 8px;
-            min-width: 40px; /* Ensure minimum size */
-            position: relative; /* For potential tooltips */
+            background: none; border: 1px solid var(--input-border); color: var(--text-color-medium);
+            padding: 8px 10px; border-radius: var(--border-radius-md); cursor: pointer;
+            transition: all var(--transition-fast) ease-out; font-size: calc(var(--base-font-size) * 0.9);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            min-width: 40px; position: relative;
         }
         .icon-button:hover {
-            background-color: var(--input-bg);
-            color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px var(--shadow-color);
+            background-color: var(--input-bg); color: var(--secondary-color); border-color: var(--secondary-color);
+            transform: translateY(-1px); box-shadow: 0 2px 5px var(--shadow-color);
         }
-        .icon-button:active {
-            transform: translateY(0);
-            background-color: color-mix(in srgb, var(--input-bg) 80%, black);
-            box-shadow: none;
-        }
-        .icon-button .fas {
-            font-size: calc(var(--base-font-size) * 1.1);
-            transition: transform var(--transition-medium) ease; /* For icon animation */
-        }
-        /* Theme toggle icon animation */
+        .icon-button:active { transform: translateY(0); background-color: color-mix(in srgb, var(--input-bg) 80%, black); box-shadow: none; }
+        .icon-button .fas { font-size: calc(var(--base-font-size) * 1.1); transition: transform var(--transition-medium) ease; }
         .dark-theme #theme-toggle-btn .fa-moon { transform: rotate(360deg); }
         #theme-toggle-btn .fa-sun { transform: rotate(0deg); }
         .dark-theme #theme-toggle-btn .fa-sun { transform: rotate(360deg); }
 
-
         /* --- Cards --- */
         .card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius-lg); /* More rounded */
-            box-shadow: 0 5px 15px var(--shadow-color);
-            padding: 25px 30px; /* Adjusted padding */
-            margin-bottom: 25px;
-            overflow: hidden;
-            transition: background-color var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
-            border: 1px solid transparent;
-            position: relative; /* For potential pseudo-elements */
+            background-color: var(--card-bg); border-radius: var(--border-radius-lg);
+            box-shadow: 0 5px 15px var(--shadow-color); padding: 25px 30px;
+            margin-bottom: 25px; overflow: hidden;
+            transition: background-color var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium), border-left-color var(--transition-medium);
+            border: 1px solid transparent; border-left: 5px solid transparent; /* Prepare left border */
+            position: relative;
         }
-        .dark-theme .card {
-            border-color: var(--input-border);
+        .dark-theme .card { border-color: var(--input-border); border-left-color: transparent; } /* Reset left border in dark theme */
+
+        /* --- Part-Time Active Indication --- */
+        body.part-time-active #input-card {
+            border-left-color: var(--accent-color); /* Highlight input card */
         }
+        body.part-time-active #part-time-label::after {
+            content: "Attivo";
+            font-size: 75%;
+            font-weight: 600;
+            padding: 2px 6px;
+            margin-left: 8px;
+            border-radius: var(--border-radius-sm);
+            background-color: var(--accent-color);
+            color: var(--text-color-light);
+            vertical-align: middle;
+        }
+
 
         /* --- Form Elements --- */
         .form-group {
-            margin-bottom: 20px;
-            opacity: 0;
-            transform: translateX(-10px); /* Slide in from left */
+            margin-bottom: 20px; opacity: 0; transform: translateX(-10px);
             animation: slideFadeIn 0.4s ease forwards;
         }
-        /* Stagger animation */
         .form-group:nth-child(1) { animation-delay: 0.1s; }
         .form-group:nth-child(2) { animation-delay: 0.18s; }
         .form-group:nth-child(3) { animation-delay: 0.26s; }
-        .form-group:nth-child(4) { animation-delay: 0.34s; } /* For actual exit time */
+        .form-group:nth-child(4) { animation-delay: 0.34s; } /* For part-time toggle */
+        .form-group:nth-child(5) { animation-delay: 0.42s; } /* For calculate button */
+
 
         label {
-            display: block;
-            margin-bottom: 8px;
+            display: block; margin-bottom: 8px; font-weight: 500;
+            font-size: calc(var(--base-font-size) * 0.9); color: var(--text-color-medium);
+            transition: color var(--transition-medium); display: flex; align-items: center; gap: 8px;
+        }
+        label .fas { color: var(--secondary-color); width: 16px; text-align: center; transition: color var(--transition-medium); opacity: 0.8; }
+
+        input[type="time"] {
+            width: 100%; padding: 12px 15px; font-size: var(--base-font-size);
+            border: 1px solid var(--input-border); border-radius: var(--border-radius-md);
+            background-color: var(--input-bg); color: var(--text-color-dark);
+            transition: border-color var(--transition-fast), background-color var(--transition-medium), color var(--transition-medium), box-shadow var(--transition-fast);
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        }
+        input[type="time"]:focus {
+            outline: none; border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 20%, transparent);
+            background-color: var(--card-bg);
+        }
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>') no-repeat center center;
+            background-size: 16px 16px; opacity: 0.6; cursor: pointer; transition: opacity var(--transition-fast);
+            filter: var(--dark-theme) invert(0.8);
+        }
+        input[type="time"]:hover::-webkit-calendar-picker-indicator { opacity: 0.9; }
+        .dark-theme input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
+
+        /* --- Toggle Switch --- */
+        .toggle-switch-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Space between text and toggle */
+            cursor: pointer;
             font-weight: 500;
             font-size: calc(var(--base-font-size) * 0.9);
             color: var(--text-color-medium);
-            transition: color var(--transition-medium);
-            display: flex; /* Align icon and text */
-            align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        label .fas {
-            color: var(--secondary-color);
-            width: 16px;
-            text-align: center;
-            transition: color var(--transition-medium);
-            opacity: 0.8;
-        }
+        /* Icon rule is no longer needed but kept for reference */
+        /* .toggle-switch-label .fas {
+             color: var(--accent-color);
+             width: 16px; text-align: center; opacity: 0.8;
+        } */
 
-        input[type="time"] {
-            width: 100%;
-            padding: 12px 15px;
-            font-size: var(--base-font-size);
-            border: 1px solid var(--input-border);
-            border-radius: var(--border-radius-md);
-            background-color: var(--input-bg);
-            color: var(--text-color-dark);
-            transition: border-color var(--transition-fast), background-color var(--transition-medium), color var(--transition-medium), box-shadow var(--transition-fast);
-            appearance: none; /* Remove default styling */
-            -webkit-appearance: none;
-            -moz-appearance: none;
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: var(--toggle-width);
+            height: var(--toggle-height);
+            flex-shrink: 0; /* Prevent toggle from shrinking */
         }
-        input[type="time"]:focus {
-            outline: none;
-            border-color: var(--input-focus-border);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus-border) 20%, transparent);
-            background-color: var(--card-bg); /* Slightly change bg on focus */
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
-        /* Custom time input indicator */
-        input[type="time"]::-webkit-calendar-picker-indicator {
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>') no-repeat center center;
-            background-size: 16px 16px;
-            opacity: 0.6;
+        .toggle-slider {
+            position: absolute;
             cursor: pointer;
-            transition: opacity var(--transition-fast);
-            filter: var(--dark-theme) invert(0.8); /* Adjust for dark theme */
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--toggle-inactive-bg);
+            border-radius: var(--toggle-height);
+            transition: background-color var(--transition-medium);
         }
-        input[type="time"]:hover::-webkit-calendar-picker-indicator {
-            opacity: 0.9;
+        .toggle-slider::before { /* The thumb */
+            position: absolute;
+            content: "";
+            height: calc(var(--toggle-height) - (2 * var(--toggle-padding)));
+            width: calc(var(--toggle-height) - (2 * var(--toggle-padding)));
+            left: var(--toggle-padding);
+            bottom: var(--toggle-padding);
+            background-color: var(--toggle-thumb-color);
+            border-radius: 50%;
+            transition: transform var(--transition-medium);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        .dark-theme input[type="time"]::-webkit-calendar-picker-indicator {
-             filter: invert(0.8);
+        input:checked + .toggle-slider {
+            background-color: var(--toggle-active-bg);
+        }
+        input:checked + .toggle-slider::before {
+            transform: translateX(calc(var(--toggle-width) - var(--toggle-height)));
+        }
+        input:focus + .toggle-slider { /* Add focus style */
+             box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 30%, transparent);
         }
 
 
         /* --- Buttons --- */
         button.main-action {
-            background: var(--gradient-bg);
-            color: var(--text-color-light);
-            border: none;
-            padding: 13px 20px;
-            font-size: calc(var(--base-font-size) * 1.0);
-            border-radius: var(--border-radius-md);
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
+            background: var(--gradient-bg); color: var(--text-color-light); border: none;
+            padding: 13px 20px; font-size: calc(var(--base-font-size) * 1.0);
+            border-radius: var(--border-radius-md); cursor: pointer; width: 100%; font-weight: 600;
             transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease, opacity var(--transition-medium);
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 10px var(--shadow-color);
-            opacity: 0;
-            transform: translateY(5px);
-            animation: slideFadeIn 0.4s ease forwards;
+            margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden; box-shadow: 0 4px 10px var(--shadow-color);
+            opacity: 0; transform: translateY(5px); animation: slideFadeIn 0.4s ease forwards;
         }
-        button#calculate-btn { animation-delay: 0.3s; }
-        button#calculate-hours-btn { animation-delay: 0.4s; } /* Delay after input */
+        button#calculate-btn { animation-delay: 0.5s; }
+        button#calculate-hours-btn { animation-delay: 0.4s; }
 
-        button.main-action::before { /* Subtle shine effect */
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
+        button.main-action::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
             background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
-            transition: left var(--transition-slow) ease-in-out;
-            opacity: 0.7;
+            transition: left var(--transition-slow) ease-in-out; opacity: 0.7;
         }
-        button.main-action:hover {
-            transform: translateY(-2px) scale(1.01); /* Lift and slightly enlarge */
-            box-shadow: 0 7px 15px var(--shadow-hover-color);
-            opacity: 0.95;
-        }
-        button.main-action:hover::before {
-            left: 100%;
-        }
-        button.main-action:active {
-            transform: translateY(0) scale(0.99); /* Press down effect */
-            box-shadow: 0 3px 8px var(--shadow-active-color);
-            opacity: 0.9;
-        }
-        button.main-action .fas {
-            margin-right: 2px; /* Adjust icon spacing */
-            transition: transform 0.2s ease;
-        }
-        button.main-action:hover .fas {
-            transform: rotate(-5deg) scale(1.05); /* Slight icon animation */
-        }
+        button.main-action:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 7px 15px var(--shadow-hover-color); opacity: 0.95; }
+        button.main-action:hover::before { left: 100%; }
+        button.main-action:active { transform: translateY(0) scale(0.99); box-shadow: 0 3px 8px var(--shadow-active-color); opacity: 0.9; }
+        button.main-action .fas { margin-right: 2px; transition: transform 0.2s ease; }
+        button.main-action:hover .fas { transform: rotate(-5deg) scale(1.05); }
 
         /* --- Result Cards & Items --- */
-        .result-card, .actual-exit-card {
-            display: none; /* Initially hidden */
-            opacity: 0;
-            transform: translateY(10px);
-            animation: resultFadeIn 0.5s ease forwards;
-        }
-        .result-card.show, .actual-exit-card.show {
-            display: block;
-            /* Animation applied via class */
-        }
-
+        .result-card, .actual-exit-card { display: none; opacity: 0; transform: translateY(10px); animation: resultFadeIn 0.5s ease forwards; }
+        .result-card.show, .actual-exit-card.show { display: block; }
         .result-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 5px;
-            border-bottom: 1px solid var(--input-border);
-            font-size: calc(var(--base-font-size) * 0.9);
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 5px;
+            border-bottom: 1px solid var(--input-border); font-size: calc(var(--base-font-size) * 0.9);
             transition: border-color var(--transition-medium), background-color var(--transition-fast) ease;
-            opacity: 0;
-            transform: translateX(-10px); /* Slide in from left */
-            animation: slideFadeIn 0.4s ease forwards;
+            opacity: 0; transform: translateX(-10px); animation: slideFadeIn 0.4s ease forwards;
         }
-        /* Stagger result items */
         .result-card .result-item:nth-child(1) { animation-delay: 0.1s; }
         .result-card .result-item:nth-child(2) { animation-delay: 0.18s; }
         .result-card .result-item:nth-child(3) { animation-delay: 0.26s; }
         .actual-exit-card .result-item:nth-child(1) { animation-delay: 0.1s; }
         .actual-exit-card .result-item:nth-child(2) { animation-delay: 0.18s; }
-
-
-        .result-item:last-child {
-            border-bottom: none;
-        }
-        .result-item:hover {
-            background-color: color-mix(in srgb, var(--bg-color) 50%, var(--card-bg));
-        }
-
-        .result-label {
-            font-weight: 400;
-            color: var(--text-color-medium);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: color var(--transition-medium);
-        }
-        .result-label .fas {
-            color: var(--secondary-color);
-            width: 18px;
-            text-align: center;
-            transition: color var(--transition-medium);
-            font-size: calc(var(--base-font-size) * 1.05);
-            opacity: 0.8;
-        }
-
+        .result-item:last-child { border-bottom: none; }
+        .result-item:hover { background-color: color-mix(in srgb, var(--bg-color) 50%, var(--card-bg)); }
+        .result-label { font-weight: 400; color: var(--text-color-medium); display: flex; align-items: center; gap: 10px; transition: color var(--transition-medium); }
+        .result-label .fas { color: var(--secondary-color); width: 18px; text-align: center; transition: color var(--transition-medium); font-size: calc(var(--base-font-size) * 1.05); opacity: 0.8; }
         .result-value {
-            font-weight: 600;
-            color: var(--text-color-dark);
-            padding: 4px 8px;
-            border-radius: var(--border-radius-sm);
+            font-weight: 600; color: var(--text-color-dark); padding: 4px 8px; border-radius: var(--border-radius-sm);
             background-color: color-mix(in srgb, var(--text-color-muted) 10%, transparent);
             transition: color var(--transition-medium), background-color var(--transition-medium);
-            min-width: 50px; /* Ensure minimum width */
-            text-align: right;
+            min-width: 50px; text-align: right;
         }
         .result-value.success { color: var(--success-color); background-color: color-mix(in srgb, var(--success-color) 15%, transparent); }
         .result-value.info { color: var(--info-color); background-color: color-mix(in srgb, var(--info-color) 15%, transparent); }
         .result-value.warning { color: var(--warning-color); background-color: color-mix(in srgb, var(--warning-color) 15%, transparent); }
-        /* Adjust dark theme results */
         .dark-theme .result-value { background-color: color-mix(in srgb, var(--text-color-muted) 20%, transparent); }
         .dark-theme .result-value.success { background-color: color-mix(in srgb, var(--success-color) 25%, transparent); }
         .dark-theme .result-value.info { background-color: color-mix(in srgb, var(--info-color) 25%, transparent); }
         .dark-theme .result-value.warning { background-color: color-mix(in srgb, var(--warning-color) 25%, transparent); }
-
-        .divider {
-            margin: 15px 0;
-            border-top: 1px dashed var(--input-border); /* Dashed divider */
-            transition: border-color var(--transition-medium);
-            opacity: 0.6;
-        }
+        .divider { margin: 15px 0; border-top: 1px dashed var(--input-border); transition: border-color var(--transition-medium); opacity: 0.6; }
 
         /* --- Rules Section --- */
-        /* MODIFIED CSS for Rules Section to prevent visibility on load */
         .rules-section {
-            max-height: 0; /* Initially hidden */
-            opacity: 0; /* Initially transparent */
-            overflow: hidden;
+            max-height: 0; opacity: 0; overflow: hidden;
             background-color: color-mix(in srgb, var(--card-bg) 95%, var(--bg-color));
-            border-radius: var(--border-radius-lg);
-            /* Ensure vertical padding, margin, border are 0 initially */
-            padding: 0 30px;
-            margin-bottom: 0;
-            border: 0px solid transparent; /* Use border-width 0 */
-            box-shadow: 0 5px 15px var(--shadow-color);
-            /* Include all animated properties in transition */
-            transition: max-height var(--transition-medium) ease-in-out,
-                        padding var(--transition-medium) ease-in-out,
-                        margin-bottom var(--transition-medium) ease-in-out,
-                        border-width var(--transition-medium) ease-in-out,
+            border-radius: var(--border-radius-lg); padding: 0 30px; margin-bottom: 0;
+            border: 0px solid transparent; box-shadow: 0 5px 15px var(--shadow-color);
+            transition: max-height var(--transition-medium) ease-in-out, padding var(--transition-medium) ease-in-out,
+                        margin-bottom var(--transition-medium) ease-in-out, border-width var(--transition-medium) ease-in-out,
                         opacity var(--transition-medium) ease-in-out;
         }
         .rules-section.show {
-            /* Increased max-height */
-            max-height: 1000px; /* Adjust as needed, increased value */
-            opacity: 1; /* Visible */
-            /* Restore padding, margin, border when shown */
-            padding: 25px 30px;
-            margin-bottom: 25px;
+            max-height: 1000px; opacity: 1; padding: 25px 30px; margin-bottom: 25px;
             border: 1px solid var(--input-border);
         }
-        /* END OF MODIFIED CSS */
-
-        .rules-section h2 {
-            font-size: calc(var(--base-font-size) * 1.1);
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .rules-section h2 { font-size: calc(var(--base-font-size) * 1.1); font-weight: 600; margin-bottom: 15px; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .rules-section ul { list-style: none; padding-left: 5px; }
+        .rules-section ul ul { margin-top: 8px; padding-left: 15px; } /* Indent nested list */
+        .rules-section li { margin-bottom: 12px; font-size: calc(var(--base-font-size) * 0.9); color: var(--text-color-medium); position: relative; padding-left: 25px; }
+        .rules-section li::before {
+            content: "\f105"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; left: 0; top: 1px; color: var(--accent-color);
+            transition: color var(--transition-medium); font-size: calc(var(--base-font-size) * 0.95);
         }
-        .rules-section ul {
-            list-style: none; /* Remove default bullets */
-            padding-left: 5px;
-        }
-        .rules-section li {
-            margin-bottom: 12px;
-            font-size: calc(var(--base-font-size) * 0.9);
-            color: var(--text-color-medium);
-            position: relative;
-            padding-left: 25px; /* Space for custom bullet */
-        }
-        .rules-section li::before { /* Custom bullet */
-            content: "\f105"; /* Font Awesome angle-right */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            top: 1px;
-            color: var(--accent-color);
-            transition: color var(--transition-medium);
-            font-size: calc(var(--base-font-size) * 0.95);
-        }
-        .rules-section strong {
-            font-weight: 600;
-            color: var(--text-color-dark);
-        }
-        .rules-section code {
-            background-color: color-mix(in srgb, var(--input-border) 50%, transparent);
-            padding: 2px 5px;
-            border-radius: var(--border-radius-sm);
-            font-size: 85%;
-            color: var(--accent-color);
-        }
+        .rules-section strong { font-weight: 600; color: var(--text-color-dark); }
+        .rules-section code { background-color: color-mix(in srgb, var(--input-border) 50%, transparent); padding: 2px 5px; border-radius: var(--border-radius-sm); font-size: 85%; color: var(--accent-color); }
 
         /* --- Animations --- */
-        @keyframes slideFadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes resultFadeIn {
-             from { opacity: 0; transform: translateY(10px); }
-             to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Add a subtle pulse to newly calculated results */
-        @keyframes pulse-value {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .result-value.updated {
-            animation: pulse-value 0.4s ease-in-out;
-        }
+        @keyframes slideFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes resultFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-value { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .result-value.updated { animation: pulse-value 0.4s ease-in-out; }
 
         /* --- Responsive --- */
         @media (max-width: 600px) {
@@ -506,8 +360,7 @@
             .container { margin: 10px auto; }
             h1 { font-size: calc(var(--base-font-size) * 1.3); gap: 8px;}
             h1 .fas { font-size: calc(var(--base-font-size) * 1.2); }
-            .card { padding: 20px; } /* Apply general card padding */
-             /* Apply specific padding for rules section when shown on mobile */
+            .card { padding: 20px; }
             .rules-section.show { padding: 20px; }
             header { margin-bottom: 20px; padding-bottom: 10px; }
             button.main-action { padding: 12px 15px; font-size: var(--base-font-size); }
@@ -516,14 +369,14 @@
             .result-label .fas { width: 16px; font-size: var(--base-font-size); }
             .result-value { font-size: calc(var(--base-font-size) * 0.85); }
             .rules-section li { padding-left: 20px; }
-            /* Ensure horizontal padding is maintained on mobile when rules are hidden */
             .rules-section { padding-left: 20px; padding-right: 20px; }
+            .toggle-switch-label { flex-direction: column; align-items: flex-start; gap: 8px; } /* Stack toggle label on mobile */
+            .toggle-switch { margin-top: 5px; }
         }
 
     </style>
 </head>
-<body>
-    <div class="container">
+<body class=""> <div class="container">
         <header>
             <h1><i class="fas fa-stopwatch-20"></i> Time Tracker</h1>
             <div class="header-controls">
@@ -536,9 +389,10 @@
         </header>
 
         <section class="rules-section card" id="rules-section">
-             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
+            <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
             <ul>
-                <li>La giornata lavorativa standard è di <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>).</li>
+                <li>La giornata lavorativa standard è di <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>) per il tempo pieno.</li>
+                <li>Attivando l'opzione <strong>Part-Time</strong>, la giornata lavorativa standard diventa di <strong>6 ore</strong> (<code>6h 00m</code>).</li>
                 <li><strong>Pausa Pranzo:</strong> Se inserisci sia l'orario di uscita che di rientro per la pausa:
                     <ul>
                         <li>Viene conteggiata una durata minima di <strong>30 minuti</strong>, anche se la pausa effettiva è stata più breve.</li>
@@ -546,8 +400,9 @@
                     </ul>
                 </li>
                  <li>Se non inserisci gli orari di pausa, non viene applicata nessuna pausa o bonus.</li>
-                <li><strong>Orario di Uscita Previsto:</strong> Calcolato come: <code>Orario Ingresso + 7h 12m + Durata Pausa Effettiva (min 30m) - Bonus Pausa (max 10m)</code>.</li>
+                <li><strong>Orario di Uscita Previsto:</strong> Calcolato come: <code>Orario Ingresso + Durata Standard (7h12m o 6h) + Durata Pausa Effettiva (min 30m) - Bonus Pausa (max 10m)</code>.</li>
                 <li><strong>Totale Ore Lavorate:</strong> Calcolato come: <code>Orario Uscita Effettivo - Orario Ingresso - Durata Pausa Effettiva (se effettuata durante l'orario) + Bonus Pausa</code>.</li>
+                <li>La <strong>Differenza dal previsto</strong> confronta le ore lavorate con la durata standard selezionata (7h 12m o 6h).</li>
             </ul>
         </section>
 
@@ -564,10 +419,20 @@
                 <label for="lunch-end"><i class="fas fa-person-walking-arrow-right"></i>Rientro dalla pausa pranzo:</label>
                 <input type="time" id="lunch-end">
             </div>
+             <div class="form-group">
+                 <label class="toggle-switch-label" for="part-time-toggle">
+                     <span id="part-time-label">Modalità Part-Time (6h)</span>
+                     <div class="toggle-switch">
+                         <input type="checkbox" id="part-time-toggle">
+                         <span class="toggle-slider"></span>
+                     </div>
+                 </label>
+             </div>
             <button id="calculate-btn" class="main-action"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
         </div>
 
-        <div class="card result-card" id="result-card"> <div class="result-item">
+        <div class="card result-card" id="result-card">
+            <div class="result-item">
                 <span class="result-label"><i class="fas fa-clock"></i>Durata pausa (effettiva):</span>
                 <span class="result-value info" id="lunch-duration">--:--</span>
             </div>
@@ -582,17 +447,19 @@
 
             <div class="divider"></div>
 
-            <div class="form-group"> <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
+            <div class="form-group">
+                <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
                 <input type="time" id="actual-exit-time">
             </div>
             <button id="calculate-hours-btn" class="main-action"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
         </div>
 
-        <div class="card actual-exit-card" id="actual-exit-card"> <div class="result-item">
+        <div class="card actual-exit-card" id="actual-exit-card">
+            <div class="result-item">
                 <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
                 <span class="result-value" id="total-hours">--:--</span> </div>
             <div class="result-item">
-                <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (7h 12m):</span>
+                <span class="result-label"><i class="fas fa-arrows-left-right"></i>Differenza dal previsto (<span id="target-hours-label">7h 12m</span>):</span>
                 <span class="result-value" id="hours-difference">--:--</span> </div>
         </div>
     </div>
@@ -604,11 +471,14 @@
             const themeButtonIcon = themeToggleButton.querySelector('.fas');
             const rulesToggleButton = document.getElementById("rules-toggle-btn");
             const rulesSection = document.getElementById("rules-section");
+            const partTimeToggle = document.getElementById('part-time-toggle'); // New Toggle
+            const targetHoursLabel = document.getElementById('target-hours-label'); // New Label Span
 
             const calculateBtn = document.getElementById("calculate-btn");
             const calculateHoursBtn = document.getElementById("calculate-hours-btn");
             const resultCard = document.getElementById("result-card");
             const actualExitCard = document.getElementById("actual-exit-card");
+            const inputCard = document.getElementById("input-card"); // For styling
 
             // --- Inputs ---
             const entryTimeInput = document.getElementById("entry-time");
@@ -624,21 +494,20 @@
             const hoursDifferenceEl = document.getElementById("hours-difference");
 
             // --- Constants ---
-            const STANDARD_WORKDAY_MINUTES = 7 * 60 + 12; // 7h 12m
+            const FULL_TIME_WORKDAY_MINUTES = 7 * 60 + 12; // 7h 12m = 432 minutes
+            const PART_TIME_WORKDAY_MINUTES = 6 * 60;      // 6h 00m = 360 minutes
             const MIN_LUNCH_BREAK_MINUTES = 30;
             const MAX_LUNCH_BONUS_MINUTES = 10;
 
             // --- Theme Handling ---
             function setTheme(isDark) {
                 document.body.classList.toggle("dark-theme", isDark);
-                themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`; // Update icon class directly
+                themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`;
                 themeToggleButton.title = isDark ? "Passa a Tema Chiaro" : "Passa a Tema Scuro";
                 localStorage.setItem("darkTheme", isDark ? "true" : "false");
             }
-
             const savedTheme = localStorage.getItem("darkTheme") === "true";
-            setTheme(savedTheme); // Apply saved theme on load
-
+            setTheme(savedTheme);
             themeToggleButton.addEventListener("click", () => {
                 setTheme(!document.body.classList.contains("dark-theme"));
             });
@@ -647,9 +516,21 @@
              rulesToggleButton.addEventListener("click", () => {
                  const isShown = rulesSection.classList.toggle("show");
                  rulesToggleButton.title = isShown ? "Nascondi Regole" : "Mostra Regole";
-                 // Change icon based on state
                  rulesToggleButton.querySelector('.fas').className = `fas ${isShown ? 'fa-times-circle' : 'fa-info-circle'}`;
              });
+
+             // --- Part-Time Toggle Handling ---
+             function updatePartTimeState() {
+                 const isPartTime = partTimeToggle.checked;
+                 document.body.classList.toggle('part-time-active', isPartTime);
+                 targetHoursLabel.textContent = isPartTime ? '6h 00m' : '7h 12m';
+                 // Potentially clear results or trigger recalculation if desired
+                 // resultCard.classList.remove('show');
+                 // actualExitCard.classList.remove('show');
+             }
+             partTimeToggle.addEventListener('change', updatePartTimeState);
+             // Initialize state on load
+             updatePartTimeState();
 
 
             // --- Utility Functions ---
@@ -665,34 +546,21 @@
                 const isNegative = totalMinutes < 0;
                 const absMinutes = Math.abs(totalMinutes);
                 let hours = Math.floor(absMinutes / 60);
-                let minutes = Math.round(absMinutes % 60); // Round minutes
-
-                // Handle rounding up to 60 minutes -> increment hour
-                if (minutes === 60) {
-                    hours += 1;
-                    minutes = 0;
-                }
-
+                let minutes = Math.round(absMinutes % 60);
+                if (minutes === 60) { hours += 1; minutes = 0; }
                 const sign = isNegative ? "-" : "";
                 return `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
             }
 
-            // Function to show/hide cards with animation trigger
             function displayCard(cardElement) {
-                 // Ensure other result cards are hidden before showing the new one
                  if (cardElement === resultCard && actualExitCard.classList.contains('show')) {
                      actualExitCard.classList.remove('show');
                  } else if (cardElement === actualExitCard && resultCard.classList.contains('show')) {
-                     // Optionally keep resultCard visible when showing actualExitCard
+                     // Keep resultCard visible
                  }
-
-                 // Use requestAnimationFrame to ensure the class change triggers animation reliably
-                 requestAnimationFrame(() => {
-                    cardElement.classList.add('show');
-                 });
+                 requestAnimationFrame(() => { cardElement.classList.add('show'); });
             }
 
-            // Function to add a temporary class for pulse animation
             function pulseElement(element) {
                 element.classList.add('updated');
                 element.addEventListener('animationend', () => {
@@ -700,28 +568,31 @@
                 }, { once: true });
             }
 
-            // --- Alert Function (Simple Modal Alternative) ---
-            function showAppAlert(message) {
-                alert(message);
-            }
+            function showAppAlert(message) { alert(message); }
 
             // --- Calculation Logic ---
-            calculateBtn.addEventListener("click", function() {
-                // ... (calculation logic remains the same) ...
+            function calculateTimes(isCalculatingHours) {
                 const entryMinutes = timeToMinutes(entryTimeInput.value);
                 const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
                 const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
+                const actualExitMinutes = isCalculatingHours ? timeToMinutes(actualExitTimeInput.value) : null;
+                const isPartTime = partTimeToggle.checked;
+                const targetWorkMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
 
                 if (entryMinutes === null) {
                     showAppAlert("Per favore, inserisci un orario di ingresso valido.");
                     entryTimeInput.focus();
-                    return;
+                    return false; // Indicate failure
                 }
+                 if (isCalculatingHours && actualExitMinutes === null) {
+                     showAppAlert("Inserisci un orario effettivo di uscita valido.");
+                     actualExitTimeInput.focus();
+                     return false; // Indicate failure
+                 }
 
                 let actualLunchDuration = 0;
                 let effectiveLunchMinutes = 0;
                 let lunchBonusMinutes = 0;
-
                 const hasLunchStart = lunchStartMinutes !== null;
                 const hasLunchEnd = lunchEndMinutes !== null;
 
@@ -729,100 +600,86 @@
                     if (lunchEndMinutes <= lunchStartMinutes) {
                         showAppAlert("L'orario di rientro dalla pausa pranzo deve essere successivo all'orario di uscita.");
                         lunchEndInput.focus();
-                        return;
+                        return false;
                     }
                     actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
                     effectiveLunchMinutes = Math.max(actualLunchDuration, MIN_LUNCH_BREAK_MINUTES);
                     lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
                     lunchDurationEl.textContent = minutesToTimeString(actualLunchDuration);
-                    pulseElement(lunchDurationEl);
                 } else if (hasLunchStart || hasLunchEnd) {
                     showAppAlert("Inserisci sia l'orario di uscita che di rientro per la pausa pranzo, oppure lasciali entrambi vuoti.");
                     if (hasLunchStart) lunchEndInput.focus(); else lunchStartInput.focus();
-                    return;
+                    return false;
                 } else {
                     lunchDurationEl.textContent = "Nessuna";
-                    pulseElement(lunchDurationEl);
-                    lunchBonusMinutes = 0;
-                    effectiveLunchMinutes = 0;
                     actualLunchDuration = 0;
+                    effectiveLunchMinutes = 0;
+                    lunchBonusMinutes = 0;
                 }
+                pulseElement(lunchDurationEl);
 
-                const exitTimeTotalMinutes = entryMinutes + STANDARD_WORKDAY_MINUTES + effectiveLunchMinutes - lunchBonusMinutes;
-
+                // --- Calculate Exit Time ---
+                const exitTimeTotalMinutes = entryMinutes + targetWorkMinutes + effectiveLunchMinutes - lunchBonusMinutes;
                 lunchBonusEl.textContent = lunchBonusMinutes > 0 ? `${lunchBonusMinutes} min` : "Nessuno";
                 exitTimeEl.textContent = minutesToTimeString(exitTimeTotalMinutes);
                 pulseElement(lunchBonusEl);
                 pulseElement(exitTimeEl);
-
                 displayCard(resultCard);
 
-                actualExitCard.classList.remove('show');
-                actualExitTimeInput.value = "";
-                totalHoursEl.textContent = "--:--";
-                hoursDifferenceEl.textContent = "--:--";
-                totalHoursEl.className = "result-value"; // Reset class
-                hoursDifferenceEl.className = "result-value"; // Reset class
+                // --- Calculate Actual Hours (if requested) ---
+                if (isCalculatingHours) {
+                    let totalWorkDurationMinutes = actualExitMinutes - entryMinutes;
+                    if (actualExitMinutes < entryMinutes) { totalWorkDurationMinutes += 24 * 60; }
+
+                    // Recalculate actual lunch duration that occurred *during* the work period for accuracy
+                    let actualBreakDuringWork = 0;
+                    if(hasLunchStart && hasLunchEnd && lunchStartMinutes >= entryMinutes && lunchEndMinutes <= (actualExitMinutes < entryMinutes ? actualExitMinutes + (24*60) : actualExitMinutes) ) {
+                        actualBreakDuringWork = lunchEndMinutes - lunchStartMinutes;
+                    } else {
+                        actualBreakDuringWork = 0; // Reset if break was outside work time
+                    }
+
+                    // Use the same bonus calculated earlier based on the full break duration rule
+                    const totalWorkMinutes = totalWorkDurationMinutes - actualBreakDuringWork + lunchBonusMinutes;
+                    const differenceMinutes = totalWorkMinutes - targetWorkMinutes;
+
+                    totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
+                    hoursDifferenceEl.textContent = `${differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(differenceMinutes)}`;
+                    pulseElement(totalHoursEl);
+                    pulseElement(hoursDifferenceEl);
+
+                    totalHoursEl.className = "result-value";
+                    hoursDifferenceEl.className = "result-value";
+                    if (differenceMinutes < 0) {
+                        totalHoursEl.classList.add("warning");
+                        hoursDifferenceEl.classList.add("warning");
+                    } else if (differenceMinutes > 5) {
+                        hoursDifferenceEl.classList.add("success");
+                    } else {
+                        hoursDifferenceEl.classList.add("info");
+                    }
+                    displayCard(actualExitCard);
+                } else {
+                    // Clear actual hours results if only calculating exit time
+                    actualExitCard.classList.remove('show');
+                    actualExitTimeInput.value = "";
+                    totalHoursEl.textContent = "--:--";
+                    hoursDifferenceEl.textContent = "--:--";
+                    totalHoursEl.className = "result-value";
+                    hoursDifferenceEl.className = "result-value";
+                }
+                return true; // Indicate success
+            }
+
+            calculateBtn.addEventListener("click", function() {
+                calculateTimes(false); // Calculate only exit time
             });
 
             calculateHoursBtn.addEventListener("click", function() {
-                // ... (calculation logic remains the same until styling) ...
-                const entryMinutes = timeToMinutes(entryTimeInput.value);
-                const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
-                const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
-                const actualExitMinutes = timeToMinutes(actualExitTimeInput.value);
-
-                if (entryMinutes === null || actualExitMinutes === null) {
-                    showAppAlert("Inserisci un orario di ingresso e un orario effettivo di uscita validi.");
-                    if(entryMinutes === null) entryTimeInput.focus();
-                    else actualExitTimeInput.focus();
-                    return;
-                }
-
-                let actualLunchDuration = 0;
-                let lunchBonusMinutes = 0;
-
-                 const hasLunchStart = lunchStartMinutes !== null;
-                 const hasLunchEnd = lunchEndMinutes !== null;
-
-                 if (hasLunchStart && hasLunchEnd && lunchEndMinutes > lunchStartMinutes) {
-                      actualLunchDuration = lunchEndMinutes - lunchStartMinutes;
-                      lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
-                 } else {
-                     actualLunchDuration = 0;
-                     lunchBonusMinutes = 0;
-                 }
-
-                let totalWorkDurationMinutes = actualExitMinutes - entryMinutes;
-                if (actualExitMinutes < entryMinutes) {
-                    totalWorkDurationMinutes += 24 * 60;
-                }
-                const totalWorkMinutes = totalWorkDurationMinutes - actualLunchDuration + lunchBonusMinutes;
-                const differenceMinutes = totalWorkMinutes - STANDARD_WORKDAY_MINUTES;
-
-                totalHoursEl.textContent = minutesToTimeString(totalWorkMinutes);
-                hoursDifferenceEl.textContent = `${differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(differenceMinutes)}`;
-                pulseElement(totalHoursEl);
-                pulseElement(hoursDifferenceEl);
-
-                // --- MODIFIED STYLING LOGIC ---
-                totalHoursEl.className = "result-value"; // Reset class
-                hoursDifferenceEl.className = "result-value"; // Reset class
-
-                if (differenceMinutes < 0) { // Negative difference
-                    totalHoursEl.classList.add("warning");
-                    hoursDifferenceEl.classList.add("warning");
-                } else if (differenceMinutes > 5) { // Significantly positive difference
-                    hoursDifferenceEl.classList.add("success");
-                } else { // Close to zero difference
-                    hoursDifferenceEl.classList.add("info");
-                }
-                // --- END OF MODIFIED STYLING LOGIC ---
-
-                displayCard(actualExitCard);
+                calculateTimes(true); // Calculate both exit time and actual hours
             });
 
         });
     </script>
 </body>
-</html
+</html>
