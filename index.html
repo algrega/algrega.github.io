@@ -266,7 +266,7 @@
             font-weight: 500;
             font-size: calc(var(--base-font-size) * 0.9);
             color: var(--text-color-medium);
-            gap: 10px;
+            gap: 10px; /* Default gap */
         }
         .toggle-switch {
             position: relative;
@@ -292,11 +292,9 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         input:checked + .toggle-slider { background-color: var(--toggle-active-bg); } /* Default active */
-        /* Optional: Different color for remote toggle */
-        /* #remote-work-toggle:checked + .toggle-slider { background-color: var(--toggle-remote-active-bg); } */
         input:checked + .toggle-slider::before { transform: translateX(calc(var(--toggle-width) - var(--toggle-height))); }
         input:focus + .toggle-slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 30%, transparent); }
-        /* #remote-work-toggle:focus + .toggle-slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--remote-color) 30%, transparent); } */
+
 
         /* --- Buttons --- */
         button.main-action {
@@ -306,11 +304,8 @@
             transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease, opacity var(--transition-medium);
             margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
             position: relative; overflow: hidden; box-shadow: 0 4px 10px var(--shadow-color);
-            /* Keep animation for consistency, adjust if needed */
             opacity: 0; transform: translateY(5px); animation: slideFadeIn 0.4s ease forwards;
         }
-        /* Adjust animation delays for buttons in their respective cards */
-        /* #calculate-btn delay set within .form-group section */
         #calculate-hours-btn { animation-delay: 0.4s; }
 
         button.main-action::before {
@@ -412,8 +407,11 @@
             .result-value { font-size: calc(var(--base-font-size) * 0.85); }
             .rules-section li { padding-left: 20px; }
             .rules-section { padding-left: 20px; padding-right: 20px; }
-            .toggle-switch-label { flex-direction: column; align-items: flex-start; gap: 8px; } /* Stack toggle label on mobile */
-            .toggle-switch { margin-top: 5px; }
+            .toggle-switch-label {
+                 /* Keep default flex row: display: flex, align-items: center, justify-content: space-between */
+                 gap: 8px; /* Optionally reduce gap slightly for mobile */
+             }
+            /* Removed stacking styles for toggle switch label */
             .intermediate-break-row { flex-direction: column; align-items: stretch; gap: 10px; padding: 15px; }
             .intermediate-break-row > div { width: 100%; }
             .remove-intermediate-break-btn { width: 100%; margin-top: 5px; padding: 10px; } /* Full width remove button */
