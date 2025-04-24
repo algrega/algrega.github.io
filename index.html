@@ -1024,7 +1024,7 @@
             });
 
             // Add event listeners to inputs to hide results on change
-            [entryTimeInput, lunchStartInput, lunchEndInput, actualExitTimeInput].forEach(input => {
+            [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
                 input.addEventListener('input', () => {
                     resultCard.classList.remove('show');
                     actualExitCard.classList.remove('show');
