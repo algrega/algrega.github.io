@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker v6</title> <!-- Updated Version -->
+    <title>Time Tracker v7</title> <!-- Updated Version -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -440,6 +440,7 @@
         <section class="rules-section card" id="rules-section">
             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
             <ul>
+                <li>L'orario di ingresso non può essere precedente alle <strong>08:00</strong>.</li>
                 <li>Seleziona la modalità operativa: puoi attivare <strong>Part-Time</strong> (6h), <strong>Lavoro da Remoto</strong> (7h 12m, regole specifiche) o <strong>entrambe</strong>. Se nessuna è attiva, si applica il Full-Time standard (7h 12m).</li>
                 <li class="part-time-rule">In <strong>Part-Time</strong>, la giornata lavorativa standard diventa di <strong>6 ore</strong> (<code>6h 00m</code>).</li>
                 <li class="remote-rule">In <strong>Lavoro da Remoto</strong>, la giornata lavorativa standard è <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>), ma si applicano regole specifiche per pausa/bonus/buono.</li>
@@ -593,6 +594,7 @@
             const PART_TIME_WORKDAY_MINUTES = 6 * 60;      // 360 minutes
             const MIN_LUNCH_BREAK_MINUTES = 30;
             const MAX_LUNCH_BONUS_MINUTES = 10;
+            const MIN_ENTRY_TIME_MINUTES = 8 * 60; // 08:00 in minutes
 
             // --- Theme Handling ---
             function setTheme(isDark) {
@@ -763,15 +765,23 @@
                 const isPartTime = partTimeToggle.checked;
                 const isRemoteWork = remoteWorkToggle.checked;
 
-                // --- Determine Target Work Minutes (Part-Time takes precedence) ---
-                const targetWorkMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
-
                 // --- Input Validation ---
                 if (entryMinutes === null) {
                     showAppAlert("Per favore, inserisci un orario di ingresso valido.");
                     entryTimeInput.focus();
                     return { success: false };
                 }
+
+                // Check if entry time is before 08:00
+                if (entryMinutes < MIN_ENTRY_TIME_MINUTES) {
+                    showAppAlert("L'orario di ingresso non può essere precedente alle 08:00.");
+                    entryTimeInput.focus();
+                    return { success: false };
+                }
+
+
+                // --- Determine Target Work Minutes (Part-Time takes precedence) ---
+                const targetWorkMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
 
                 const hasLunchStart = lunchStartMinutes !== null;
                 const hasLunchEnd = lunchEndMinutes !== null;
