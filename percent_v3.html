@@ -430,7 +430,7 @@
                 errorResult: "Errore"
             },
             en: {
-                mainTitle: "Percentage Calculator V3.1",
+                mainTitle: "Percentage Calculator",
                 subtitle: "Percentage Calculator is a free online tool to calculate percentages.",
                 calc1Title: "Calculate Percentage of a Number",
                 calc1Label1: "What is",
@@ -636,18 +636,22 @@
 
 
             // --- Mobile Touch Drag and Drop ---
-            let touchInitialX = 0, touchInitialY = 0;
-            // let touchCurrentX = 0; // Non più usata globalmente
+            let touchInitialX = 0, touchInitialY = 0, touchStartTime = 0;
             let touchCurrentY = 0;
             let touchElementOffsetY = 0;
             let isTouchDragging = false; 
             let placeholder = null;
             let originalNextSibling = null;
-            let dragTargetCard = null; // La card specifica che si intende trascinare
+            let dragTargetCard = null; 
+            let potentialDragCancelled = false; // Nuovo flag
 
-            const TOUCH_DRAG_INIT_THRESHOLD_Y = 15; 
-            const TOUCH_DRAG_VERTICAL_PREFERENCE = 2.0; 
-            const TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD = 10; // Se muovi orizzontalmente di X pixel e > Y, è scroll
+            // Costanti per la gestione del tocco
+            const SCROLL_GRACE_PERIOD = 180; // ms. Periodo di grazia per lo scroll
+            const SCROLL_IMMEDIATE_THRESHOLD_Y = 7; // pixel. Movimento Y minimo durante grace period per confermare scroll
+            const TOUCH_DRAG_INIT_THRESHOLD_Y = 12; // pixel. Movimento Y per iniziare il drag (dopo grace, o se mov. iniziale piccolo)
+            const TOUCH_DRAG_VERTICAL_PREFERENCE = 2.0; // Mov. Y deve essere X volte quello X
+            const TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD = 15; // pixel. Se mov. X > soglia E > mov. Y, è scroll X.
+
 
             function isTouchDraggingActive() {
                 return isTouchDragging;
@@ -663,38 +667,54 @@
                     dragTargetCard = touchedEl; 
                     touchInitialX = event.touches[0].clientX;
                     touchInitialY = event.touches[0].clientY;
-                    isTouchDragging = false; // Resetta lo stato di drag all'inizio di un nuovo tocco
+                    touchStartTime = Date.now();
+                    isTouchDragging = false; 
+                    potentialDragCancelled = false; // Resetta il flag
                     
                 }, { passive: true }); 
             });
 
             document.addEventListener('touchmove', (event) => {
-                if (!dragTargetCard || event.touches.length !== 1 || isDraggingDesktop) {
-                    if (isTouchDragging) { // Se un drag era attivo ma il tocco è cambiato, annulla
-                        handleTouchEndOrCancelLogic();
+                if (!dragTargetCard || event.touches.length !== 1 || isDraggingDesktop || potentialDragCancelled) {
+                    // Se un drag era attivo ma il tocco è cambiato o il drag è stato annullato, resetta
+                    if (isTouchDragging) { 
+                        handleTouchEndOrCancelLogic(); // Chiama la logica di pulizia
                     }
                     return;
                 }
 
                 const touchCurrentX = event.touches[0].clientX;
                 touchCurrentY = event.touches[0].clientY;
+                const elapsedTime = Date.now() - touchStartTime;
 
                 if (!isTouchDragging) { 
                     const deltaX = touchCurrentX - touchInitialX;
                     const deltaY = touchCurrentY - touchInitialY;
 
-                    // Priorità allo scroll orizzontale se il movimento è prevalentemente orizzontale
-                    if (Math.abs(deltaX) > TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
-                        dragTargetCard = null; // Annulla il potenziale drag, l'utente sta scrollando orizzontalmente
-                        return;
+                    // 1. Controllo Scroll Orizzontale Immediato
+                    if (Math.abs(deltaX) > TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD && 
+                        Math.abs(deltaX) > Math.abs(deltaY) * (TOUCH_DRAG_VERTICAL_PREFERENCE - 0.5) ) { // Leggermente meno restrittivo per X
+                        potentialDragCancelled = true; 
+                        dragTargetCard = null;
+                        return; // Lascia che il browser gestisca lo scroll orizzontale
                     }
 
+                    // 2. Controllo Scroll Verticale Immediato (Durante il Grace Period)
+                    if (elapsedTime < SCROLL_GRACE_PERIOD) {
+                        if (Math.abs(deltaY) > SCROLL_IMMEDIATE_THRESHOLD_Y) {
+                            potentialDragCancelled = true;
+                            dragTargetCard = null;
+                            return; // È uno scroll verticale rapido
+                        }
+                        // Se il movimento è piccolo durante il grace period, attendi altri eventi
+                        return; 
+                    }
+                    
+                    // 3. Valutazione Attivazione Drag (Dopo il Grace Period o se movimento iniziale era piccolo)
                     if (Math.abs(deltaY) > TOUCH_DRAG_INIT_THRESHOLD_Y && 
                         Math.abs(deltaY) > Math.abs(deltaX) * TOUCH_DRAG_VERTICAL_PREFERENCE) {
                         
-                        // Prevenire il default SOLO se stiamo iniziando un drag.
-                        // Questo è il punto critico.
-                        event.preventDefault();
+                        event.preventDefault(); // Prevenire il default ORA che iniziamo il drag
                         isTouchDragging = true;
                         draggedItem = dragTargetCard; 
 
@@ -702,8 +722,6 @@
                         draggedItem.classList.add('touch-drag-active');
 
                         const cardRect = draggedItem.getBoundingClientRect();
-                        // Calcola l'offset del tocco *rispetto alla posizione attuale della card*
-                        // quando il drag inizia effettivamente.
                         touchElementOffsetY = event.touches[0].clientY - cardRect.top; 
                         originalNextSibling = draggedItem.nextSibling;
 
@@ -724,16 +742,21 @@
                         // La posizione top iniziale verrà impostata nel prossimo blocco
                         
                         document.body.style.overflow = 'hidden';
-                    } else {
-                        // Movimento non sufficiente o non abbastanza verticale, non fare nulla
-                        // e lascia che il browser gestisca lo scroll (se presente).
-                        return; 
+                    } else if (elapsedTime > SCROLL_GRACE_PERIOD) {
+                        // Dopo il grace period, se non si attivano le condizioni di drag, 
+                        // e non era uno scroll rapido, considera il potenziale drag annullato
+                        // per evitare che un piccolo movimento successivo attivi il drag inaspettatamente.
+                        potentialDragCancelled = true;
+                        dragTargetCard = null;
+                        return;
                     }
+                    // Se nessuna condizione è soddisfatta, non fare nulla, attendi
+                    return;
                 }
 
-                // Se isTouchDragging è true (o è appena diventato true)
+                // Se isTouchDragging è true
                 if (isTouchDragging) {
-                    event.preventDefault(); // Continua a prevenire lo scroll per questo evento
+                    event.preventDefault(); 
                     const newTop = touchCurrentY - touchElementOffsetY;
                     draggedItem.style.top = `${newTop}px`;
 
@@ -753,9 +776,12 @@
             }, { passive: false }); 
 
             function handleTouchEndOrCancelLogic() {
-                 if (!isTouchDragging || !draggedItem) { 
+                potentialDragCancelled = false; // Resetta sempre
+
+                if (!isTouchDragging || !draggedItem) { 
                     dragTargetCard = null; 
-                    isTouchDragging = false; // Assicurati che sia falso
+                    isTouchDragging = false; 
+                    document.body.style.overflow = ''; // Assicura che l'overflow sia ripristinato
                     return;
                 }
 
@@ -766,13 +792,10 @@
                     if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
                         mainContainer.insertBefore(draggedItem, originalNextSibling);
                     } else if (mainContainer.contains(draggedItem)) {
-                        // Se era già nel main e il placeholder è fallito, lascialo dove si trova
-                        // o spostalo alla fine come ultima risorsa.
-                        // Questo caso dovrebbe essere raro.
+                        // Gestione di fallback se il placeholder non è più valido
                     } else {
-                         mainContainer.appendChild(draggedItem); // Estrema risorsa
+                         mainContainer.appendChild(draggedItem); 
                     }
-
                     if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
                 }
                 placeholder = null;
@@ -786,13 +809,11 @@
                     draggedItem.style.zIndex = '';
                     draggedItem.style.width = '';
                 }
-
-                // Resetta tutte le variabili di stato del drag
+                
                 draggedItem = null;
                 dragTargetCard = null;
                 isTouchDragging = false;
-                touchInitialX = 0; touchInitialY = 0;
-                // touchCurrentX = 0; 
+                touchInitialX = 0; touchInitialY = 0; touchStartTime = 0;
                 touchCurrentY = 0;
                 touchElementOffsetY = 0;
                 originalNextSibling = null;
