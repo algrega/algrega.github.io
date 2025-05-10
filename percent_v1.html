@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatrice Percentuali</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #3498db;
+            --primary-color-dark: #2980b9;
+            --secondary-color: #f0f4f8;
+            --text-color: #333;
+            --light-text-color: #555;
+            --border-color: #d1d9e6;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --input-bg: #fdfdfd;
+            --input-focus-border: #3498db;
+            --error-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 700px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-right: 15px;
+            background-color: var(--text-color); /* Simulating the black background of the % icon */
+            color: var(--secondary-color); /* White % symbol */
+            padding: 5px 10px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px; /* Fixed width */
+            height: 50px; /* Fixed height */
+        }
+        
+        .logo i { /* If using Font Awesome for % */
+             font-style: normal; /* Override italic from <i> if not FA icon */
+             font-weight: bold;
+        }
+
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--light-text-color);
+            margin-bottom: 30px;
+        }
+
+        .calculator-card {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .calculator-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Hide h2s visually, but keep for accessibility if desired, otherwise remove */
+        .calculator-card h2.visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .input-group label, .input-group span {
+            font-size: 0.95rem;
+            color: var(--light-text-color);
+            flex-shrink: 0;
+        }
+
+        .input-group input[type="number"], .input-group input[type="text"] {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: var(--input-bg);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            flex-grow: 1;
+            min-width: 60px; /* Ensure small inputs are usable */
+        }
+        
+        .input-group input[type="number"] {
+            width: 80px; /* Default width for number inputs */
+        }
+
+        .input-group input[type="text"][readonly] {
+            background-color: #e9ecef; /* Slightly different for readonly */
+            font-weight: bold;
+        }
+
+        .input-group input[type="number"]:focus, .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .input-group .result-field {
+            flex-grow: 1; /* Allow result field to take more space */
+            max-width: 120px;
+        }
+
+        .calculate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: auto; /* Pushes button to the right if space allows */
+        }
+
+        .calculate-btn:hover {
+            background-color: var(--primary-color-dark);
+            transform: translateY(-2px);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .tips {
+            font-size: 0.85rem;
+            color: var(--light-text-color);
+            margin-top: 25px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            .logo {
+                font-size: 2rem;
+                padding: 3px 8px;
+                width: 40px;
+                height: 40px;
+            }
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .input-group label, .input-group span {
+                 margin-bottom: 5px;
+            }
+            .input-group input[type="number"], 
+            .input-group input[type="text"],
+            .calculate-btn {
+                width: 100%; /* Full width on small screens */
+            }
+            .calculate-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .input-group .result-field {
+                max-width: none; /* Allow result to be full width */
+            }
+        }
+
+        /* Utility for error messages */
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none; /* Hidden by default */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-percent"></i>
+                <!-- Or use a simple text % if Font Awesome isn't strictly needed for just this -->
+                <!-- <span style="font-size: 1.8rem; font-weight: bold;">%</span> -->
+            </div>
+            <h1>Percentage Calculator</h1>
+        </header>
+        <p class="subtitle">Percentage Calculator is a free online tool to calculate percentages.</p>
+
+        <main>
+            <!-- Calculator 1: What is X % of Y? -->
+            <section class="calculator-card" id="calc1">
+                <h2 class="visually-hidden">Calculate Percentage of a Number</h2>
+                <div class="input-group">
+                    <span>What is</span>
+                    <input type="number" id="percent1" placeholder="e.g. 10" aria-label="Percentage value">
+                    <span>% of</span>
+                    <input type="number" id="total1" placeholder="e.g. 50" aria-label="Total value">
+                    <span>?</span>
+                    <button class="calculate-btn" data-calc="1">Calculate</button>
+                    <input type="text" id="result1" class="result-field" readonly aria-label="Result of calculation 1">
+                </div>
+                <div class="error-message" id="error1"></div>
+            </section>
+
+            <!-- Calculator 2: X is what percent of Y? -->
+            <section class="calculator-card" id="calc2">
+                 <h2 class="visually-hidden">Calculate what percent one number is of another</h2>
+                <div class="input-group">
+                    <input type="number" id="value2" placeholder="e.g. 5" aria-label="Part value">
+                    <span>is what percent of</span>
+                    <input type="number" id="total2" placeholder="e.g. 50" aria-label="Total value for percentage">
+                    <span>?</span>
+                    <button class="calculate-btn" data-calc="2">Calculate</button>
+                    <input type="text" id="result2" class="result-field" readonly aria-label="Result of calculation 2">
+                    <span>%</span>
+                </div>
+                 <div class="error-message" id="error2"></div>
+            </section>
+
+            <!-- Calculator 3: Percentage increase/decrease -->
+            <section class="calculator-card" id="calc3">
+                <h2 class="visually-hidden">Calculate Percentage Increase or Decrease</h2>
+                <div class="input-group">
+                    <span>What is the percentage increase/decrease</span>
+                </div>
+                <div class="input-group">
+                    <span>from</span>
+                    <input type="number" id="from3" placeholder="e.g. 100" aria-label="Initial value">
+                    <span>to</span>
+                    <input type="number" id="to3" placeholder="e.g. 120" aria-label="Final value">
+                    <span>?</span>
+                    <button class="calculate-btn" data-calc="3">Calculate</button>
+                    <input type="text" id="result3" class="result-field" readonly aria-label="Result of calculation 3">
+                    <span>%</span>
+                </div>
+                 <div class="error-message" id="error3"></div>
+            </section>
+        </main>
+
+        <div class="tips">
+            Tips: Use tab to move to the next field. Use shift-tab to move to the previous field. Press enter to calculate.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateButtons = document.querySelectorAll('.calculate-btn');
+
+            calculateButtons.forEach(button => {
+                button.addEventListener('click', performCalculation);
+            });
+
+            // Add event listener for 'Enter' key on number inputs
+            const numberInputs = document.querySelectorAll('.calculator-card input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Prevent form submission if it were a form
+                        // Find the button within the same calculator card and click it
+                        const card = input.closest('.calculator-card');
+                        if (card) {
+                            const btn = card.querySelector('.calculate-btn');
+                            if (btn) {
+                                btn.click();
+                            }
+                        }
+                    }
+                });
+            });
+
+            function performCalculation(event) {
+                const calcType = event.target.dataset.calc;
+                let result;
+
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+
+                try {
+                    if (calcType === '1') {
+                        const percent = parseFloat(document.getElementById('percent1').value);
+                        const total = parseFloat(document.getElementById('total1').value);
+                        if (isNaN(percent) || isNaN(total)) throw new Error("Please enter valid numbers.");
+                        
+                        result = (percent / 100) * total;
+                        document.getElementById('result1').value = formatResult(result);
+                        document.getElementById('error1').style.display = 'none';
+                    } else if (calcType === '2') {
+                        const value = parseFloat(document.getElementById('value2').value);
+                        const total = parseFloat(document.getElementById('total2').value);
+                        if (isNaN(value) || isNaN(total)) throw new Error("Please enter valid numbers.");
+                        if (total === 0) throw new Error("Cannot divide by zero (Total value).");
+
+                        result = (value / total) * 100;
+                        document.getElementById('result2').value = formatResult(result);
+                        document.getElementById('error2').style.display = 'none';
+                    } else if (calcType === '3') {
+                        const from = parseFloat(document.getElementById('from3').value);
+                        const to = parseFloat(document.getElementById('to3').value);
+                        if (isNaN(from) || isNaN(to)) throw new Error("Please enter valid numbers.");
+                        if (from === 0) throw new Error("Cannot calculate percentage change from zero.");
+
+                        result = ((to - from) / from) * 100;
+                        document.getElementById('result3').value = formatResult(result);
+                        document.getElementById('error3').style.display = 'none';
+                    }
+                } catch (error) {
+                    const errorFieldId = `error${calcType}`;
+                    const errorField = document.getElementById(errorFieldId);
+                    if (errorField) {
+                        errorField.textContent = error.message;
+                        errorField.style.display = 'block';
+                    }
+                    // Clear the result field for that calculator
+                    const resultFieldId = `result${calcType}`;
+                    const resultField = document.getElementById(resultFieldId);
+                    if(resultField) resultField.value = '';
+                    console.error("Calculation error:", error.message);
+                }
+            }
+
+            function formatResult(value) {
+                if (isNaN(value) || !isFinite(value)) {
+                    return "Error";
+                }
+                // Round to 2 decimal places if it's not an integer
+                return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+            }
+        });
+    </script>
+
+</body>
+</html>
