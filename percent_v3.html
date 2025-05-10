@@ -501,6 +501,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTranslations(currentLanguage);
+            restoreOrder(); // NUOVO: Ripristina l'ordine al caricamento
 
             const calculateButtons = document.querySelectorAll('.calculate-btn');
             calculateButtons.forEach(button => {
@@ -587,6 +588,52 @@
             const mainContainer = document.querySelector('main');
             let draggedItem = null; 
             let isDraggingDesktop = false; 
+
+            const CARD_ORDER_KEY = 'calculatorCardOrder';
+
+            function saveOrder() {
+                const orderedIds = [];
+                mainContainer.querySelectorAll('.calculator-card').forEach(card => {
+                    orderedIds.push(card.id);
+                });
+                localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(orderedIds));
+            }
+
+            function restoreOrder() {
+                const savedOrder = localStorage.getItem(CARD_ORDER_KEY);
+                if (savedOrder) {
+                    try {
+                        const orderedIds = JSON.parse(savedOrder);
+                        if (Array.isArray(orderedIds)) {
+                            const fragment = document.createDocumentFragment();
+                            const currentCardsMap = new Map();
+                            // Assicurati che draggableCards sia aggiornato se il DOM cambia dinamicamente altrove
+                            // Per ora, assumiamo che gli elementi originali siano quelli presenti al caricamento.
+                            document.querySelectorAll('.calculator-card[draggable="true"]').forEach(card => {
+                                currentCardsMap.set(card.id, card);
+                            });
+                            
+                            orderedIds.forEach(id => {
+                                const card = currentCardsMap.get(id);
+                                if (card) {
+                                    fragment.appendChild(card);
+                                    currentCardsMap.delete(id); 
+                                }
+                            });
+                            currentCardsMap.forEach(card => fragment.appendChild(card));
+
+                            // mainContainer.innerHTML = ''; // Non usare innerHTML se ci sono event listener sugli elementi figli
+                            while (mainContainer.firstChild) { // Modo più sicuro per svuotare
+                                mainContainer.removeChild(mainContainer.firstChild);
+                            }
+                            mainContainer.appendChild(fragment); 
+                        }
+                    } catch (e) {
+                        console.error("Error restoring order:", e);
+                        localStorage.removeItem(CARD_ORDER_KEY); 
+                    }
+                }
+            }
             
             // --- Desktop Drag and Drop ---
             draggableCards.forEach(card => {
@@ -632,6 +679,7 @@
                 } else {
                     mainContainer.insertBefore(draggedItem, afterElement);
                 }
+                saveOrder(); 
             });
 
 
@@ -643,21 +691,26 @@
             let placeholder = null;
             let originalNextSibling = null;
             let dragTargetCard = null; 
-            let potentialDragCancelled = false; // Nuovo flag
+            let potentialDragCancelled = false; 
 
-            // Costanti per la gestione del tocco
-            const SCROLL_GRACE_PERIOD = 180; // ms. Periodo di grazia per lo scroll
-            const SCROLL_IMMEDIATE_THRESHOLD_Y = 7; // pixel. Movimento Y minimo durante grace period per confermare scroll
-            const TOUCH_DRAG_INIT_THRESHOLD_Y = 12; // pixel. Movimento Y per iniziare il drag (dopo grace, o se mov. iniziale piccolo)
-            const TOUCH_DRAG_VERTICAL_PREFERENCE = 2.0; // Mov. Y deve essere X volte quello X
-            const TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD = 15; // pixel. Se mov. X > soglia E > mov. Y, è scroll X.
+            const SCROLL_GRACE_PERIOD = 180; 
+            const SCROLL_IMMEDIATE_THRESHOLD_Y = 7; 
+            const TOUCH_DRAG_INIT_THRESHOLD_Y = 12; 
+            const TOUCH_DRAG_VERTICAL_PREFERENCE = 2.0; 
+            const TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD = 15; 
 
 
             function isTouchDraggingActive() {
                 return isTouchDragging;
             }
             
-            draggableCards.forEach(card => {
+            // Ricollega gli event listener alle card dopo il riordino
+            // Questa funzione andrebbe chiamata dopo restoreOrder e ogni volta che il DOM delle card cambia
+            // Per semplicità, ora lo facciamo solo una volta, ma se le card fossero aggiunte/rimosse dinamicamente,
+            // servirebbe una gestione più complessa (event delegation o ri-attach).
+            // Per ora, `draggableCards` (da querySelectorAll all'inizio) dovrebbe essere sufficiente se non ci sono aggiunte dinamiche.
+
+            document.querySelectorAll('.calculator-card[draggable="true"]').forEach(card => { // Assicurati di usare la NodeList aggiornata se restoreOrder ha modificato il DOM
                 card.addEventListener('touchstart', (event) => {
                     if (event.touches.length !== 1 || isDraggingDesktop) return;
                     
@@ -669,16 +722,16 @@
                     touchInitialY = event.touches[0].clientY;
                     touchStartTime = Date.now();
                     isTouchDragging = false; 
-                    potentialDragCancelled = false; // Resetta il flag
+                    potentialDragCancelled = false; 
                     
                 }, { passive: true }); 
             });
 
+
             document.addEventListener('touchmove', (event) => {
                 if (!dragTargetCard || event.touches.length !== 1 || isDraggingDesktop || potentialDragCancelled) {
-                    // Se un drag era attivo ma il tocco è cambiato o il drag è stato annullato, resetta
                     if (isTouchDragging) { 
-                        handleTouchEndOrCancelLogic(); // Chiama la logica di pulizia
+                        handleTouchEndOrCancelLogic(); 
                     }
                     return;
                 }
@@ -691,30 +744,26 @@
                     const deltaX = touchCurrentX - touchInitialX;
                     const deltaY = touchCurrentY - touchInitialY;
 
-                    // 1. Controllo Scroll Orizzontale Immediato
                     if (Math.abs(deltaX) > TOUCH_HORIZONTAL_SCROLL_DOMINANCE_THRESHOLD && 
-                        Math.abs(deltaX) > Math.abs(deltaY) * (TOUCH_DRAG_VERTICAL_PREFERENCE - 0.5) ) { // Leggermente meno restrittivo per X
+                        Math.abs(deltaX) > Math.abs(deltaY) * (TOUCH_DRAG_VERTICAL_PREFERENCE - 0.5) ) { 
                         potentialDragCancelled = true; 
                         dragTargetCard = null;
-                        return; // Lascia che il browser gestisca lo scroll orizzontale
+                        return; 
                     }
 
-                    // 2. Controllo Scroll Verticale Immediato (Durante il Grace Period)
                     if (elapsedTime < SCROLL_GRACE_PERIOD) {
                         if (Math.abs(deltaY) > SCROLL_IMMEDIATE_THRESHOLD_Y) {
                             potentialDragCancelled = true;
                             dragTargetCard = null;
-                            return; // È uno scroll verticale rapido
+                            return; 
                         }
-                        // Se il movimento è piccolo durante il grace period, attendi altri eventi
                         return; 
                     }
                     
-                    // 3. Valutazione Attivazione Drag (Dopo il Grace Period o se movimento iniziale era piccolo)
                     if (Math.abs(deltaY) > TOUCH_DRAG_INIT_THRESHOLD_Y && 
                         Math.abs(deltaY) > Math.abs(deltaX) * TOUCH_DRAG_VERTICAL_PREFERENCE) {
                         
-                        event.preventDefault(); // Prevenire il default ORA che iniziamo il drag
+                        event.preventDefault(); 
                         isTouchDragging = true;
                         draggedItem = dragTargetCard; 
 
@@ -739,22 +788,16 @@
                         draggedItem.style.zIndex = '1000';
                         draggedItem.style.width = `${cardRect.width}px`;
                         draggedItem.style.left = `${cardRect.left}px`;
-                        // La posizione top iniziale verrà impostata nel prossimo blocco
                         
                         document.body.style.overflow = 'hidden';
                     } else if (elapsedTime > SCROLL_GRACE_PERIOD) {
-                        // Dopo il grace period, se non si attivano le condizioni di drag, 
-                        // e non era uno scroll rapido, considera il potenziale drag annullato
-                        // per evitare che un piccolo movimento successivo attivi il drag inaspettatamente.
                         potentialDragCancelled = true;
                         dragTargetCard = null;
                         return;
                     }
-                    // Se nessuna condizione è soddisfatta, non fare nulla, attendi
                     return;
                 }
 
-                // Se isTouchDragging è true
                 if (isTouchDragging) {
                     event.preventDefault(); 
                     const newTop = touchCurrentY - touchElementOffsetY;
@@ -776,28 +819,39 @@
             }, { passive: false }); 
 
             function handleTouchEndOrCancelLogic() {
-                potentialDragCancelled = false; // Resetta sempre
+                let orderActuallyChanged = false; 
+                
+                if (isTouchDragging && draggedItem) { // Solo se un drag era effettivamente in corso
+                    // Controlla se la posizione è cambiata rispetto all'originale
+                    if (placeholder && placeholder.parentNode === mainContainer) {
+                         // Se il placeholder esiste e il draggedItem non è già prima di esso
+                        if (draggedItem.nextSibling !== placeholder && placeholder.nextSibling !== draggedItem) {
+                           orderActuallyChanged = true;
+                        }
+                        mainContainer.insertBefore(draggedItem, placeholder);
+                        placeholder.parentNode.removeChild(placeholder);
 
-                if (!isTouchDragging || !draggedItem) { 
-                    dragTargetCard = null; 
-                    isTouchDragging = false; 
-                    document.body.style.overflow = ''; // Assicura che l'overflow sia ripristinato
+                    } else if (draggedItem.nextSibling !== originalNextSibling) { 
+                        // Se non c'è placeholder ma la posizione è cambiata rispetto a prima del drag
+                        orderActuallyChanged = true;
+                        if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
+                            mainContainer.insertBefore(draggedItem, originalNextSibling);
+                        } else {
+                            mainContainer.appendChild(draggedItem); // Fallback
+                        }
+                    }
+                    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder); // Pulizia extra
+                }
+
+
+                potentialDragCancelled = false; 
+
+                if (!isTouchDragging && !draggedItem) { // Se non c'era un drag attivo, esci presto
+                    dragTargetCard = null;
+                    document.body.style.overflow = '';
                     return;
                 }
-
-                if (placeholder && placeholder.parentNode === mainContainer) {
-                    mainContainer.insertBefore(draggedItem, placeholder);
-                    placeholder.parentNode.removeChild(placeholder);
-                } else if (draggedItem) { 
-                    if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
-                        mainContainer.insertBefore(draggedItem, originalNextSibling);
-                    } else if (mainContainer.contains(draggedItem)) {
-                        // Gestione di fallback se il placeholder non è più valido
-                    } else {
-                         mainContainer.appendChild(draggedItem); 
-                    }
-                    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
-                }
+                
                 placeholder = null;
 
                 if (draggedItem) {
@@ -810,9 +864,13 @@
                     draggedItem.style.width = '';
                 }
                 
+                if (orderActuallyChanged) { // Salva solo se l'ordine è davvero cambiato
+                    saveOrder();
+                }
+                
                 draggedItem = null;
                 dragTargetCard = null;
-                isTouchDragging = false;
+                isTouchDragging = false; // Assicurati che questo sia resettato
                 touchInitialX = 0; touchInitialY = 0; touchStartTime = 0;
                 touchCurrentY = 0;
                 touchElementOffsetY = 0;
