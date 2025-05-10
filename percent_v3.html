@@ -501,7 +501,53 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTranslations(currentLanguage);
-            restoreOrder(); // NUOVO: Ripristina l'ordine al caricamento
+            
+            const mainContainer = document.querySelector('main'); // Definisci mainContainer qui
+            const CARD_ORDER_KEY = 'calculatorCardOrder';
+
+            function saveOrder() {
+                const orderedIds = [];
+                mainContainer.querySelectorAll('.calculator-card').forEach(card => {
+                    orderedIds.push(card.id);
+                });
+                localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(orderedIds));
+            }
+
+            function restoreOrder() {
+                const savedOrder = localStorage.getItem(CARD_ORDER_KEY);
+                if (savedOrder) {
+                    try {
+                        const orderedIds = JSON.parse(savedOrder);
+                        if (Array.isArray(orderedIds)) {
+                            const fragment = document.createDocumentFragment();
+                            const currentCardsMap = new Map();
+                            
+                            mainContainer.querySelectorAll('.calculator-card').forEach(card => {
+                                currentCardsMap.set(card.id, card);
+                            });
+                            
+                            orderedIds.forEach(id => {
+                                const card = currentCardsMap.get(id);
+                                if (card) {
+                                    fragment.appendChild(card);
+                                    currentCardsMap.delete(id); 
+                                }
+                            });
+                            currentCardsMap.forEach(card => fragment.appendChild(card));
+
+                            while (mainContainer.firstChild) {
+                                mainContainer.removeChild(mainContainer.firstChild);
+                            }
+                            mainContainer.appendChild(fragment); 
+                        }
+                    } catch (e) {
+                        console.error("Error restoring order:", e);
+                        localStorage.removeItem(CARD_ORDER_KEY); 
+                    }
+                }
+            }
+            
+            restoreOrder(); 
 
             const calculateButtons = document.querySelectorAll('.calculate-btn');
             calculateButtons.forEach(button => {
@@ -584,84 +630,42 @@
             }
 
             // --- Drag and Drop Functionality ---
-            const draggableCards = document.querySelectorAll('.calculator-card[draggable="true"]');
-            const mainContainer = document.querySelector('main');
+            // `mainContainer` è già definito sopra
             let draggedItem = null; 
             let isDraggingDesktop = false; 
-
-            const CARD_ORDER_KEY = 'calculatorCardOrder';
-
-            function saveOrder() {
-                const orderedIds = [];
-                mainContainer.querySelectorAll('.calculator-card').forEach(card => {
-                    orderedIds.push(card.id);
-                });
-                localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(orderedIds));
-            }
-
-            function restoreOrder() {
-                const savedOrder = localStorage.getItem(CARD_ORDER_KEY);
-                if (savedOrder) {
-                    try {
-                        const orderedIds = JSON.parse(savedOrder);
-                        if (Array.isArray(orderedIds)) {
-                            const fragment = document.createDocumentFragment();
-                            const currentCardsMap = new Map();
-                            // Assicurati che draggableCards sia aggiornato se il DOM cambia dinamicamente altrove
-                            // Per ora, assumiamo che gli elementi originali siano quelli presenti al caricamento.
-                            document.querySelectorAll('.calculator-card[draggable="true"]').forEach(card => {
-                                currentCardsMap.set(card.id, card);
-                            });
-                            
-                            orderedIds.forEach(id => {
-                                const card = currentCardsMap.get(id);
-                                if (card) {
-                                    fragment.appendChild(card);
-                                    currentCardsMap.delete(id); 
-                                }
-                            });
-                            currentCardsMap.forEach(card => fragment.appendChild(card));
-
-                            // mainContainer.innerHTML = ''; // Non usare innerHTML se ci sono event listener sugli elementi figli
-                            while (mainContainer.firstChild) { // Modo più sicuro per svuotare
-                                mainContainer.removeChild(mainContainer.firstChild);
-                            }
-                            mainContainer.appendChild(fragment); 
-                        }
-                    } catch (e) {
-                        console.error("Error restoring order:", e);
-                        localStorage.removeItem(CARD_ORDER_KEY); 
-                    }
-                }
-            }
             
             // --- Desktop Drag and Drop ---
-            draggableCards.forEach(card => {
-                card.addEventListener('dragstart', (event) => {
-                    if (isTouchDraggingActive()) { 
-                        event.preventDefault();
-                        return;
-                    }
-                    isDraggingDesktop = true;
-                    draggedItem = event.target;
-                    setTimeout(() => { 
-                        if (draggedItem && isDraggingDesktop) {
-                           draggedItem.classList.add('dragging');
-                        }
-                    }, 0);
-                    try {
-                        event.dataTransfer.setData('text/plain', event.target.id); 
-                        event.dataTransfer.effectAllowed = 'move';
-                    } catch (e) { /* Silent error for some browsers */ }
-                });
+            // Usiamo event delegation anche per il desktop per coerenza e robustezza
+            mainContainer.addEventListener('dragstart', (event) => {
+                const targetCard = event.target.closest('.calculator-card');
+                if (!targetCard || !targetCard.draggable) return;
 
-                card.addEventListener('dragend', () => {
-                    if (isDraggingDesktop && draggedItem) {
-                        draggedItem.classList.remove('dragging');
+                if (isTouchDraggingActive()) { 
+                    event.preventDefault();
+                    return;
+                }
+                isDraggingDesktop = true;
+                draggedItem = targetCard;
+                setTimeout(() => { 
+                    if (draggedItem && isDraggingDesktop) {
+                       draggedItem.classList.add('dragging');
                     }
-                    draggedItem = null;
-                    isDraggingDesktop = false;
-                });
+                }, 0);
+                try {
+                    event.dataTransfer.setData('text/plain', event.target.id); 
+                    event.dataTransfer.effectAllowed = 'move';
+                } catch (e) { /* Silent error */ }
+            });
+
+            mainContainer.addEventListener('dragend', (event) => {
+                 const targetCard = event.target.closest('.calculator-card');
+                if (!targetCard || !targetCard.draggable || !isDraggingDesktop) return;
+
+                if (draggedItem) { // Assicurati che draggedItem sia quello corretto
+                    draggedItem.classList.remove('dragging');
+                }
+                draggedItem = null;
+                isDraggingDesktop = false;
             });
 
             mainContainer.addEventListener('dragover', (event) => {
@@ -704,28 +708,20 @@
                 return isTouchDragging;
             }
             
-            // Ricollega gli event listener alle card dopo il riordino
-            // Questa funzione andrebbe chiamata dopo restoreOrder e ogni volta che il DOM delle card cambia
-            // Per semplicità, ora lo facciamo solo una volta, ma se le card fossero aggiunte/rimosse dinamicamente,
-            // servirebbe una gestione più complessa (event delegation o ri-attach).
-            // Per ora, `draggableCards` (da querySelectorAll all'inizio) dovrebbe essere sufficiente se non ci sono aggiunte dinamiche.
+            mainContainer.addEventListener('touchstart', (event) => { // Event Delegation per touchstart
+                if (event.touches.length !== 1 || isDraggingDesktop) return;
+                
+                const touchedEl = event.target.closest('.calculator-card');
+                if (!touchedEl || !touchedEl.draggable) return; 
 
-            document.querySelectorAll('.calculator-card[draggable="true"]').forEach(card => { // Assicurati di usare la NodeList aggiornata se restoreOrder ha modificato il DOM
-                card.addEventListener('touchstart', (event) => {
-                    if (event.touches.length !== 1 || isDraggingDesktop) return;
-                    
-                    const touchedEl = event.target.closest('.calculator-card');
-                    if (!touchedEl || !touchedEl.draggable) return; 
-
-                    dragTargetCard = touchedEl; 
-                    touchInitialX = event.touches[0].clientX;
-                    touchInitialY = event.touches[0].clientY;
-                    touchStartTime = Date.now();
-                    isTouchDragging = false; 
-                    potentialDragCancelled = false; 
-                    
-                }, { passive: true }); 
-            });
+                dragTargetCard = touchedEl; 
+                touchInitialX = event.touches[0].clientX;
+                touchInitialY = event.touches[0].clientY;
+                touchStartTime = Date.now();
+                isTouchDragging = false; 
+                potentialDragCancelled = false; 
+                
+            }, { passive: true }); 
 
 
             document.addEventListener('touchmove', (event) => {
@@ -788,6 +784,7 @@
                         draggedItem.style.zIndex = '1000';
                         draggedItem.style.width = `${cardRect.width}px`;
                         draggedItem.style.left = `${cardRect.left}px`;
+                        draggedItem.style.top = `${cardRect.top}px`; // Imposta top iniziale basato sulla posizione al momento del drag
                         
                         document.body.style.overflow = 'hidden';
                     } else if (elapsedTime > SCROLL_GRACE_PERIOD) {
@@ -821,33 +818,29 @@
             function handleTouchEndOrCancelLogic() {
                 let orderActuallyChanged = false; 
                 
-                if (isTouchDragging && draggedItem) { // Solo se un drag era effettivamente in corso
-                    // Controlla se la posizione è cambiata rispetto all'originale
+                if (isTouchDragging && draggedItem) {
+                    // Determina se la posizione è cambiata
+                    // Un modo semplice è verificare se il 'placeholder' è stato usato per riposizionare
                     if (placeholder && placeholder.parentNode === mainContainer) {
-                         // Se il placeholder esiste e il draggedItem non è già prima di esso
-                        if (draggedItem.nextSibling !== placeholder && placeholder.nextSibling !== draggedItem) {
-                           orderActuallyChanged = true;
-                        }
+                        orderActuallyChanged = true; // Assumiamo che se il placeholder è coinvolto, l'ordine è cambiato
                         mainContainer.insertBefore(draggedItem, placeholder);
                         placeholder.parentNode.removeChild(placeholder);
-
-                    } else if (draggedItem.nextSibling !== originalNextSibling) { 
-                        // Se non c'è placeholder ma la posizione è cambiata rispetto a prima del drag
+                    } else if (draggedItem.nextSibling !== originalNextSibling) { // Fallback se il placeholder non è stato gestito correttamente
                         orderActuallyChanged = true;
                         if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
                             mainContainer.insertBefore(draggedItem, originalNextSibling);
                         } else {
-                            mainContainer.appendChild(draggedItem); // Fallback
+                            mainContainer.appendChild(draggedItem);
                         }
                     }
-                    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder); // Pulizia extra
+                     if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
                 }
-
-
+                
                 potentialDragCancelled = false; 
 
-                if (!isTouchDragging && !draggedItem) { // Se non c'era un drag attivo, esci presto
+                if (!isTouchDragging && !draggedItem) { 
                     dragTargetCard = null;
+                    if (isTouchDragging) isTouchDragging = false; // Sicurezza extra
                     document.body.style.overflow = '';
                     return;
                 }
@@ -864,13 +857,14 @@
                     draggedItem.style.width = '';
                 }
                 
-                if (orderActuallyChanged) { // Salva solo se l'ordine è davvero cambiato
+                if (orderActuallyChanged && isTouchDragging) { // Salva solo se era un drag valido e l'ordine è cambiato
                     saveOrder();
                 }
                 
+                // Resetta tutti gli stati
                 draggedItem = null;
                 dragTargetCard = null;
-                isTouchDragging = false; // Assicurati che questo sia resettato
+                isTouchDragging = false; 
                 touchInitialX = 0; touchInitialY = 0; touchStartTime = 0;
                 touchCurrentY = 0;
                 touchElementOffsetY = 0;
