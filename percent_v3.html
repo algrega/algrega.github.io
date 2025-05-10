@@ -138,35 +138,33 @@
             margin-bottom: 25px;
             border: 1px solid var(--border-color);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+             /* Rimosso touch-action: none; per permettere lo scroll di default */
         }
 
         .calculator-card[draggable="true"] {
             cursor: grab;
-            user-select: none; /* Per evitare la selezione del testo durante il drag touch */
+            user-select: none; 
         }
 
-        .calculator-card.dragging {
-            opacity: 0.6; /* Default per desktop */
+        .calculator-card.dragging { /* Applicato sia per desktop che per touch una volta che il drag inizia */
+            opacity: 0.6; 
             cursor: grabbing !important;
             box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
         }
         
-        /* Stili specifici per il dragging su touch, quando l'elemento è position:fixed */
-        .calculator-card.dragging.touch-drag-active {
-            opacity: 0.8; /* Più visibile */
+        .calculator-card.touch-drag-active { /* Stile addizionale quando l'elemento è position:fixed per touch */
+            opacity: 0.8;
+            /* Altri stili come position:fixed sono applicati via JS */
         }
-
 
         .drop-placeholder {
             background-color: rgba(52, 152, 219, 0.1);
             border: 2px dashed var(--primary-color);
             border-radius: 10px;
             box-sizing: border-box;
-            /* L'altezza, larghezza, e margin verranno impostati dinamicamente via JS */
         }
 
-
-        .calculator-card:hover:not(.dragging) { /* Non applicare hover transform se si sta trascinando */
+        .calculator-card:hover:not(.dragging):not(.touch-drag-active) {
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.1);
         }
@@ -576,7 +574,6 @@
                         errorField.textContent = errorMessage;
                         errorField.style.display = 'block';
                     }
-                    // console.error("Calculation error:", error);
                 }
             }
 
@@ -587,30 +584,30 @@
                 return Number.isInteger(value) ? value.toString() : value.toFixed(2);
             }
 
-            // Drag and Drop Functionality
+            // --- Drag and Drop Functionality ---
             const draggableCards = document.querySelectorAll('.calculator-card[draggable="true"]');
             const mainContainer = document.querySelector('main');
-            let draggedItem = null;
-            let isDraggingDesktop = false;
-
+            let draggedItem = null; // L'elemento attualmente trascinato (sia desktop che touch)
+            let isDraggingDesktop = false; // Flag per il drag & drop del mouse
+            
             // --- Desktop Drag and Drop ---
             draggableCards.forEach(card => {
                 card.addEventListener('dragstart', (event) => {
-                    if (isTouchDragging) { // Non avviare il drag desktop se un drag touch è in corso
+                    if (isTouchDraggingActive()) { // Non avviare il drag desktop se un drag touch è in corso
                         event.preventDefault();
                         return;
                     }
                     isDraggingDesktop = true;
                     draggedItem = event.target;
-                    setTimeout(() => { // Permette al browser di renderizzare l'immagine di drag
+                    setTimeout(() => { 
                         if (draggedItem && isDraggingDesktop) {
                            draggedItem.classList.add('dragging');
                         }
                     }, 0);
                     try {
-                        event.dataTransfer.setData('text/plain', event.target.id); // Necessario per Firefox
+                        event.dataTransfer.setData('text/plain', event.target.id); 
                         event.dataTransfer.effectAllowed = 'move';
-                    } catch (e) { /* console.warn("Error setting dataTransfer:", e); */ }
+                    } catch (e) { /* Errore silenzioso per alcuni browser */ }
                 });
 
                 card.addEventListener('dragend', () => {
@@ -623,12 +620,8 @@
             });
 
             mainContainer.addEventListener('dragover', (event) => {
-                event.preventDefault(); // Necessario per permettere il drop
+                event.preventDefault(); 
                 if (!isDraggingDesktop || !draggedItem) return;
-                
-                // Opzionale: feedback visivo durante dragover desktop,
-                // come spostare un placeholder o evidenziare la zona di drop.
-                // Per semplicità, questa parte è omessa ma la logica `getDragAfterElement` è pronta.
             });
 
             mainContainer.addEventListener('drop', (event) => {
@@ -641,96 +634,119 @@
                 } else {
                     mainContainer.insertBefore(draggedItem, afterElement);
                 }
-                // La classe 'dragging' viene rimossa in dragend
             });
 
 
             // --- Mobile Touch Drag and Drop ---
-            let touchInitialY = 0;
-            let touchCurrentY = 0;
+            let touchInitialX = 0, touchInitialY = 0;
+            let touchCurrentX = 0, touchCurrentY = 0;
             let touchElementOffsetY = 0;
-            let isTouchDragging = false;
+            let isTouchDragging = false; // Flag per il drag con tocco
             let placeholder = null;
-            let originalNextSibling = null; // Per ripristinare la posizione originale se il drag è annullato fuori area
+            let originalNextSibling = null;
+            let dragTargetCard = null; // La card specifica che si intende trascinare
 
+            const TOUCH_DRAG_INIT_THRESHOLD_Y = 10; // Min. pixel di movimento verticale per iniziare il drag
+            const TOUCH_DRAG_VERTICAL_PREFERENCE = 1.5; // Il movimento Y deve essere X volte quello X
+
+            function isTouchDraggingActive() {
+                return isTouchDragging;
+            }
+            
             draggableCards.forEach(card => {
-                card.style.touchAction = 'none'; // Previene lo scroll del browser sull'elemento
-                
                 card.addEventListener('touchstart', (event) => {
-                    // Gestisci solo un singolo tocco e non se un drag desktop è già attivo
                     if (event.touches.length !== 1 || isDraggingDesktop) return;
-
-                    const touchedCard = event.target.closest('.calculator-card');
-                    if (!touchedCard) return; // Assicurati che il tocco sia su una card o suo figlio
-
-                    isTouchDragging = true;
-                    draggedItem = touchedCard;
                     
-                    draggedItem.classList.add('dragging');
-                    draggedItem.classList.add('touch-drag-active'); // Stile specifico per touch drag
+                    const touchedEl = event.target.closest('.calculator-card');
+                    if (!touchedEl || !touchedEl.draggable) return; // Solo se è una card draggabile
 
+                    dragTargetCard = touchedEl; // Memorizza la card candidata al drag
+                    touchInitialX = event.touches[0].clientX;
                     touchInitialY = event.touches[0].clientY;
-                    const cardRect = draggedItem.getBoundingClientRect();
-                    touchElementOffsetY = touchInitialY - cardRect.top;
-                    originalNextSibling = draggedItem.nextSibling;
-
-
-                    // Creare e inserire il placeholder
-                    placeholder = document.createElement('div');
-                    placeholder.classList.add('drop-placeholder');
-                    const computedStyle = getComputedStyle(draggedItem);
-                    placeholder.style.height = `${cardRect.height}px`;
-                    placeholder.style.width = `${cardRect.width}px`;
-                    placeholder.style.margin = computedStyle.margin;
-                    placeholder.style.borderRadius = computedStyle.borderRadius;
                     
-                    mainContainer.insertBefore(placeholder, draggedItem);
-                    
-                    // Stile per l'elemento trascinato per farlo "fluttuare"
-                    draggedItem.style.position = 'fixed';
-                    draggedItem.style.zIndex = '1000';
-                    draggedItem.style.width = `${cardRect.width}px`;
-                    draggedItem.style.left = `${cardRect.left}px`;
-                    draggedItem.style.top = `${cardRect.top}px`;
-                    
-                    document.body.style.overflow = 'hidden'; // Previene lo scroll della pagina
-                    event.preventDefault(); // Previene il comportamento di default del tocco (es. selezione testo)
-
-                }, { passive: false }); // passive: false per event.preventDefault()
+                    // NON iniziare il drag qui, aspetta touchmove per confermare l'intento
+                }, { passive: true }); // passive:true per permettere lo scroll di default
             });
 
             document.addEventListener('touchmove', (event) => {
-                if (!isTouchDragging || !draggedItem || event.touches.length !== 1) return;
-                event.preventDefault(); 
+                if (!dragTargetCard || event.touches.length !== 1 || isDraggingDesktop) return;
 
+                touchCurrentX = event.touches[0].clientX;
                 touchCurrentY = event.touches[0].clientY;
-                const newTop = touchCurrentY - touchElementOffsetY;
-                draggedItem.style.top = `${newTop}px`;
 
-                const afterElement = getDragAfterElement(mainContainer, event.touches[0].clientY, placeholder);
-                if (placeholder) {
-                     if (afterElement) {
-                        if (placeholder.nextSibling !== afterElement) {
-                             mainContainer.insertBefore(placeholder, afterElement);
-                        }
+                if (!isTouchDragging) { // Se il drag non è ancora iniziato
+                    const deltaX = touchCurrentX - touchInitialX;
+                    const deltaY = touchCurrentY - touchInitialY;
+
+                    // Condizioni per iniziare il drag
+                    if (Math.abs(deltaY) > TOUCH_DRAG_INIT_THRESHOLD_Y && 
+                        Math.abs(deltaY) > Math.abs(deltaX) * TOUCH_DRAG_VERTICAL_PREFERENCE) {
+                        
+                        isTouchDragging = true;
+                        draggedItem = dragTargetCard; // Ora confermiamo l'elemento da trascinare
+
+                        draggedItem.classList.add('dragging');
+                        draggedItem.classList.add('touch-drag-active');
+
+                        const cardRect = draggedItem.getBoundingClientRect();
+                        touchElementOffsetY = touchInitialY - cardRect.top; 
+                        originalNextSibling = draggedItem.nextSibling;
+
+                        placeholder = document.createElement('div');
+                        placeholder.classList.add('drop-placeholder');
+                        const computedStyle = getComputedStyle(draggedItem);
+                        placeholder.style.height = `${cardRect.height}px`;
+                        placeholder.style.width = `${cardRect.width}px`;
+                        placeholder.style.margin = computedStyle.margin;
+                        placeholder.style.borderRadius = computedStyle.borderRadius;
+                        
+                        mainContainer.insertBefore(placeholder, draggedItem);
+                        
+                        draggedItem.style.position = 'fixed';
+                        draggedItem.style.zIndex = '1000';
+                        draggedItem.style.width = `${cardRect.width}px`;
+                        draggedItem.style.left = `${cardRect.left}px`;
+                        // La posizione top iniziale verrà impostata sotto
+                        
+                        document.body.style.overflow = 'hidden';
+                        event.preventDefault(); // Ora preveniamo lo scroll, perché stiamo iniziando il drag
                     } else {
-                        if (mainContainer.lastElementChild !== placeholder) {
-                            mainContainer.appendChild(placeholder);
+                        // Il movimento non soddisfa la soglia, probabile scroll, non fare nulla
+                        return; 
+                    }
+                }
+
+                // Se isTouchDragging è true (o è appena diventato true)
+                if (isTouchDragging) {
+                    event.preventDefault(); // Continua a prevenire lo scroll
+                    const newTop = touchCurrentY - touchElementOffsetY;
+                    draggedItem.style.top = `${newTop}px`;
+
+                    const afterElement = getDragAfterElement(mainContainer, event.touches[0].clientY, placeholder);
+                    if (placeholder) {
+                         if (afterElement) {
+                            if (placeholder.nextSibling !== afterElement) {
+                                 mainContainer.insertBefore(placeholder, afterElement);
+                            }
+                        } else {
+                            if (mainContainer.lastElementChild !== placeholder) {
+                                mainContainer.appendChild(placeholder);
+                            }
                         }
                     }
                 }
-            }, { passive: false });
+            }, { passive: false }); // passive: false perché potremmo chiamare preventDefault
 
-            document.addEventListener('touchend', (event) => {
-                if (!isTouchDragging || !draggedItem) return;
+            function handleTouchEndOrCancel() {
+                if (!isTouchDragging || !draggedItem) { // Se il drag non era attivo
+                    dragTargetCard = null; // Resetta il candidato
+                    return;
+                }
 
                 if (placeholder && placeholder.parentNode === mainContainer) {
                     mainContainer.insertBefore(draggedItem, placeholder);
                     placeholder.parentNode.removeChild(placeholder);
-                } else {
-                    // Fallback: se il placeholder non è nel main (improbabile)
-                    // o se il drop avviene fuori da un'area valida (non gestito esplicitamente qui)
-                    // semplicemente ripristina o aggiungi alla fine
+                } else if (draggedItem) { // Fallback se placeholder non è valido
                     if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
                         mainContainer.insertBefore(draggedItem, originalNextSibling);
                     } else {
@@ -740,26 +756,33 @@
                 }
                 placeholder = null;
 
-                draggedItem.classList.remove('dragging');
-                draggedItem.classList.remove('touch-drag-active');
-                draggedItem.style.position = '';
-                draggedItem.style.top = '';
-                draggedItem.style.left = '';
-                draggedItem.style.zIndex = '';
-                draggedItem.style.width = ''; // Ripristina la larghezza automatica
+                if (draggedItem) {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem.classList.remove('touch-drag-active');
+                    draggedItem.style.position = '';
+                    draggedItem.style.top = '';
+                    draggedItem.style.left = '';
+                    draggedItem.style.zIndex = '';
+                    draggedItem.style.width = '';
+                }
 
                 draggedItem = null;
+                dragTargetCard = null;
                 isTouchDragging = false;
-                touchInitialY = 0;
-                touchCurrentY = 0;
+                touchInitialX = 0; touchInitialY = 0;
+                touchCurrentX = 0; touchCurrentY = 0;
                 touchElementOffsetY = 0;
                 originalNextSibling = null;
                 document.body.style.overflow = '';
-            });
+            }
+
+            document.addEventListener('touchend', handleTouchEndOrCancel);
+            document.addEventListener('touchcancel', handleTouchEndOrCancel);
+
 
             function getDragAfterElement(container, y, currentPlaceholderOrDraggedItem) {
                 const draggableElements = [...container.querySelectorAll('.calculator-card:not(.dragging):not(.touch-drag-active), .drop-placeholder')]
-                                          .filter(el => el !== currentPlaceholderOrDraggedItem && el !== draggedItem); // Escludi sia il placeholder che l'elemento trascinato originale
+                                          .filter(el => el !== currentPlaceholderOrDraggedItem && el !== draggedItem);
 
                 return draggableElements.reduce((closest, child) => {
                     const box = child.getBoundingClientRect();
