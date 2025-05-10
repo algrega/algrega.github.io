@@ -58,15 +58,15 @@
         header {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* To space out logo/title and lang selector */
-            margin-bottom: 5px; /* Reduced margin */
-            flex-wrap: wrap; /* Allow lang selector to wrap on small screens */
+            justify-content: space-between;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
         }
         
         .header-main {
             display: flex;
             align-items: center;
-            margin-bottom: 10px; /* Margin for when lang selector wraps */
+            margin-bottom: 10px;
         }
 
         .logo {
@@ -131,7 +131,6 @@
             font-weight: 600;
         }
 
-
         .calculator-card {
             background-color: var(--secondary-color);
             padding: 20px;
@@ -143,15 +142,31 @@
 
         .calculator-card[draggable="true"] {
             cursor: grab;
+            user-select: none; /* Per evitare la selezione del testo durante il drag touch */
         }
 
         .calculator-card.dragging {
-            opacity: 0.6;
-            cursor: grabbing;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            opacity: 0.6; /* Default per desktop */
+            cursor: grabbing !important;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+        }
+        
+        /* Stili specifici per il dragging su touch, quando l'elemento è position:fixed */
+        .calculator-card.dragging.touch-drag-active {
+            opacity: 0.8; /* Più visibile */
         }
 
-        .calculator-card:hover {
+
+        .drop-placeholder {
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            box-sizing: border-box;
+            /* L'altezza, larghezza, e margin verranno impostati dinamicamente via JS */
+        }
+
+
+        .calculator-card:hover:not(.dragging) { /* Non applicare hover transform se si sta trascinando */
             transform: translateY(-3px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.1);
         }
@@ -266,14 +281,14 @@
                 padding: 20px;
             }
             header {
-                flex-direction: column; /* Stack logo/title and lang selector */
-                align-items: flex-start; /* Align items to the start */
+                flex-direction: column;
+                align-items: flex-start;
             }
             .header-main {
-                margin-bottom: 15px; /* Space between title block and lang selector */
+                margin-bottom: 15px;
             }
             .language-selector {
-                align-self: flex-end; /* Push lang selector to the right */
+                align-self: flex-end;
                 margin-bottom: 10px;
             }
             h1 {
@@ -459,7 +474,7 @@
 
         function applyTranslations(lang) {
             currentLanguage = lang;
-            document.documentElement.lang = lang; // Update lang attribute on <html>
+            document.documentElement.lang = lang;
 
             document.querySelectorAll('[data-translate-key]').forEach(element => {
                 const key = element.dataset.translateKey;
@@ -482,7 +497,6 @@
                 }
             });
 
-            // Update active class on language buttons
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
@@ -490,7 +504,7 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            applyTranslations(currentLanguage); // Apply translations on load
+            applyTranslations(currentLanguage);
 
             const calculateButtons = document.querySelectorAll('.calculate-btn');
             calculateButtons.forEach(button => {
@@ -531,7 +545,6 @@
                 }
                 if(resultField) resultField.value = '';
 
-
                 try {
                     let val1, val2;
                     if (calcType === '1') {
@@ -563,7 +576,7 @@
                         errorField.textContent = errorMessage;
                         errorField.style.display = 'block';
                     }
-                    console.error("Calculation error:", error);
+                    // console.error("Calculation error:", error);
                 }
             }
 
@@ -578,45 +591,175 @@
             const draggableCards = document.querySelectorAll('.calculator-card[draggable="true"]');
             const mainContainer = document.querySelector('main');
             let draggedItem = null;
+            let isDraggingDesktop = false;
 
+            // --- Desktop Drag and Drop ---
             draggableCards.forEach(card => {
                 card.addEventListener('dragstart', (event) => {
-                    draggedItem = event.target; // The card itself
-                    // setTimeout is used to allow the browser to render the drag image before adding the class
-                    setTimeout(() => {
-                        if (draggedItem) { // Check if draggedItem is still valid
+                    if (isTouchDragging) { // Non avviare il drag desktop se un drag touch è in corso
+                        event.preventDefault();
+                        return;
+                    }
+                    isDraggingDesktop = true;
+                    draggedItem = event.target;
+                    setTimeout(() => { // Permette al browser di renderizzare l'immagine di drag
+                        if (draggedItem && isDraggingDesktop) {
                            draggedItem.classList.add('dragging');
                         }
                     }, 0);
-                    event.dataTransfer.setData('text/plain', event.target.id); // Required for Firefox
+                    try {
+                        event.dataTransfer.setData('text/plain', event.target.id); // Necessario per Firefox
+                        event.dataTransfer.effectAllowed = 'move';
+                    } catch (e) { /* console.warn("Error setting dataTransfer:", e); */ }
                 });
 
                 card.addEventListener('dragend', () => {
-                    if (draggedItem) {
+                    if (isDraggingDesktop && draggedItem) {
                         draggedItem.classList.remove('dragging');
                     }
                     draggedItem = null;
+                    isDraggingDesktop = false;
                 });
             });
 
             mainContainer.addEventListener('dragover', (event) => {
-                event.preventDefault(); // This is crucial to allow dropping
+                event.preventDefault(); // Necessario per permettere il drop
+                if (!isDraggingDesktop || !draggedItem) return;
+                
+                // Opzionale: feedback visivo durante dragover desktop,
+                // come spostare un placeholder o evidenziare la zona di drop.
+                // Per semplicità, questa parte è omessa ma la logica `getDragAfterElement` è pronta.
             });
 
             mainContainer.addEventListener('drop', (event) => {
                 event.preventDefault();
-                if (draggedItem) { // Ensure there's an item being dragged
-                    const afterElement = getDragAfterElement(mainContainer, event.clientY);
-                    if (afterElement == null) {
-                        mainContainer.appendChild(draggedItem);
-                    } else {
-                        mainContainer.insertBefore(draggedItem, afterElement);
-                    }
+                if (!isDraggingDesktop || !draggedItem) return;
+
+                const afterElement = getDragAfterElement(mainContainer, event.clientY, draggedItem);
+                if (afterElement == null) {
+                    mainContainer.appendChild(draggedItem);
+                } else {
+                    mainContainer.insertBefore(draggedItem, afterElement);
                 }
+                // La classe 'dragging' viene rimossa in dragend
             });
 
-            function getDragAfterElement(container, y) {
-                const draggableElements = [...container.querySelectorAll('.calculator-card:not(.dragging)')];
+
+            // --- Mobile Touch Drag and Drop ---
+            let touchInitialY = 0;
+            let touchCurrentY = 0;
+            let touchElementOffsetY = 0;
+            let isTouchDragging = false;
+            let placeholder = null;
+            let originalNextSibling = null; // Per ripristinare la posizione originale se il drag è annullato fuori area
+
+            draggableCards.forEach(card => {
+                card.style.touchAction = 'none'; // Previene lo scroll del browser sull'elemento
+                
+                card.addEventListener('touchstart', (event) => {
+                    // Gestisci solo un singolo tocco e non se un drag desktop è già attivo
+                    if (event.touches.length !== 1 || isDraggingDesktop) return;
+
+                    const touchedCard = event.target.closest('.calculator-card');
+                    if (!touchedCard) return; // Assicurati che il tocco sia su una card o suo figlio
+
+                    isTouchDragging = true;
+                    draggedItem = touchedCard;
+                    
+                    draggedItem.classList.add('dragging');
+                    draggedItem.classList.add('touch-drag-active'); // Stile specifico per touch drag
+
+                    touchInitialY = event.touches[0].clientY;
+                    const cardRect = draggedItem.getBoundingClientRect();
+                    touchElementOffsetY = touchInitialY - cardRect.top;
+                    originalNextSibling = draggedItem.nextSibling;
+
+
+                    // Creare e inserire il placeholder
+                    placeholder = document.createElement('div');
+                    placeholder.classList.add('drop-placeholder');
+                    const computedStyle = getComputedStyle(draggedItem);
+                    placeholder.style.height = `${cardRect.height}px`;
+                    placeholder.style.width = `${cardRect.width}px`;
+                    placeholder.style.margin = computedStyle.margin;
+                    placeholder.style.borderRadius = computedStyle.borderRadius;
+                    
+                    mainContainer.insertBefore(placeholder, draggedItem);
+                    
+                    // Stile per l'elemento trascinato per farlo "fluttuare"
+                    draggedItem.style.position = 'fixed';
+                    draggedItem.style.zIndex = '1000';
+                    draggedItem.style.width = `${cardRect.width}px`;
+                    draggedItem.style.left = `${cardRect.left}px`;
+                    draggedItem.style.top = `${cardRect.top}px`;
+                    
+                    document.body.style.overflow = 'hidden'; // Previene lo scroll della pagina
+                    event.preventDefault(); // Previene il comportamento di default del tocco (es. selezione testo)
+
+                }, { passive: false }); // passive: false per event.preventDefault()
+            });
+
+            document.addEventListener('touchmove', (event) => {
+                if (!isTouchDragging || !draggedItem || event.touches.length !== 1) return;
+                event.preventDefault(); 
+
+                touchCurrentY = event.touches[0].clientY;
+                const newTop = touchCurrentY - touchElementOffsetY;
+                draggedItem.style.top = `${newTop}px`;
+
+                const afterElement = getDragAfterElement(mainContainer, event.touches[0].clientY, placeholder);
+                if (placeholder) {
+                     if (afterElement) {
+                        if (placeholder.nextSibling !== afterElement) {
+                             mainContainer.insertBefore(placeholder, afterElement);
+                        }
+                    } else {
+                        if (mainContainer.lastElementChild !== placeholder) {
+                            mainContainer.appendChild(placeholder);
+                        }
+                    }
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', (event) => {
+                if (!isTouchDragging || !draggedItem) return;
+
+                if (placeholder && placeholder.parentNode === mainContainer) {
+                    mainContainer.insertBefore(draggedItem, placeholder);
+                    placeholder.parentNode.removeChild(placeholder);
+                } else {
+                    // Fallback: se il placeholder non è nel main (improbabile)
+                    // o se il drop avviene fuori da un'area valida (non gestito esplicitamente qui)
+                    // semplicemente ripristina o aggiungi alla fine
+                    if (originalNextSibling && originalNextSibling.parentNode === mainContainer) {
+                        mainContainer.insertBefore(draggedItem, originalNextSibling);
+                    } else {
+                        mainContainer.appendChild(draggedItem);
+                    }
+                    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+                }
+                placeholder = null;
+
+                draggedItem.classList.remove('dragging');
+                draggedItem.classList.remove('touch-drag-active');
+                draggedItem.style.position = '';
+                draggedItem.style.top = '';
+                draggedItem.style.left = '';
+                draggedItem.style.zIndex = '';
+                draggedItem.style.width = ''; // Ripristina la larghezza automatica
+
+                draggedItem = null;
+                isTouchDragging = false;
+                touchInitialY = 0;
+                touchCurrentY = 0;
+                touchElementOffsetY = 0;
+                originalNextSibling = null;
+                document.body.style.overflow = '';
+            });
+
+            function getDragAfterElement(container, y, currentPlaceholderOrDraggedItem) {
+                const draggableElements = [...container.querySelectorAll('.calculator-card:not(.dragging):not(.touch-drag-active), .drop-placeholder')]
+                                          .filter(el => el !== currentPlaceholderOrDraggedItem && el !== draggedItem); // Escludi sia il placeholder che l'elemento trascinato originale
 
                 return draggableElements.reduce((closest, child) => {
                     const box = child.getBoundingClientRect();
@@ -628,7 +771,6 @@
                     }
                 }, { offset: Number.NEGATIVE_INFINITY }).element;
             }
-
         });
     </script>
 
