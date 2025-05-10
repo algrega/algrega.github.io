@@ -59,7 +59,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between; /* To space out logo/title and lang selector */
-            margin-bottom: 5px; /* Reduced margin */
+            margin-bottom: 20px; /* Adjusted margin after removing subtitle */
             flex-wrap: wrap; /* Allow lang selector to wrap on small screens */
         }
         
@@ -93,12 +93,6 @@
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-color);
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: var(--light-text-color);
-            margin-bottom: 30px;
         }
         
         .language-selector {
@@ -313,7 +307,7 @@
                 <button data-lang="en" class="lang-btn">EN</button>
             </div>
         </header>
-        <p class="subtitle" data-translate-key="subtitle">Percentage Calculator is a free online tool to calculate percentages.</p>
+        <!-- Subtitle removed -->
 
         <main>
             <!-- Calculator 3: Percentage increase/decrease -->
@@ -375,7 +369,7 @@
         const translations = {
             it: {
                 mainTitle: "Calcolatrice Percentuali",
-                subtitle: "Calcolatrice Percentuali è uno strumento online gratuito per calcolare le percentuali.",
+                // subtitle: "Calcolatrice Percentuali è uno strumento online gratuito per calcolare le percentuali.", // Removed
                 calc1Title: "Calcola Percentuale di un Numero",
                 calc1Label1: "Quanto è il",
                 calc1Label2: "% di",
@@ -410,7 +404,7 @@
             },
             en: {
                 mainTitle: "Percentage Calculator",
-                subtitle: "Percentage Calculator is a free online tool to calculate percentages.",
+                // subtitle: "Percentage Calculator is a free online tool to calculate percentages.", // Removed
                 calc1Title: "Calculate Percentage of a Number",
                 calc1Label1: "What is",
                 calc1Label2: "% of",
