@@ -316,6 +316,25 @@
         <p class="subtitle" data-translate-key="subtitle">Percentage Calculator is a free online tool to calculate percentages.</p>
 
         <main>
+            <!-- Calculator 3: Percentage increase/decrease -->
+            <section class="calculator-card" id="calc3">
+                <h2 class="visually-hidden" data-translate-key="calc3Title">Calculate Percentage Increase or Decrease</h2>
+                <div class="input-group">
+                    <span data-translate-key="calc3Label1">What is the percentage increase/decrease</span>
+                </div>
+                <div class="input-group">
+                    <span data-translate-key="calc3Label2">from</span>
+                    <input type="number" id="from3" data-translate-key-placeholder="inputPlaceholderFrom" data-translate-key-aria-label="initialValueAria">
+                    <span data-translate-key="calc3Label3">to</span>
+                    <input type="number" id="to3" data-translate-key-placeholder="inputPlaceholderTo" data-translate-key-aria-label="finalValueAria">
+                    <span data-translate-key="calc3Label4">?</span>
+                    <button class="calculate-btn" data-calc="3" data-translate-key="calculateButton">Calculate</button>
+                    <input type="text" id="result3" class="result-field" readonly data-translate-key-aria-label="resultAria3">
+                    <span>%</span>
+                </div>
+                 <div class="error-message" id="error3"></div>
+            </section>
+            
             <!-- Calculator 1: What is X % of Y? -->
             <section class="calculator-card" id="calc1">
                 <h2 class="visually-hidden" data-translate-key="calc1Title">Calculate Percentage of a Number</h2>
@@ -344,25 +363,6 @@
                     <span>%</span>
                 </div>
                  <div class="error-message" id="error2"></div>
-            </section>
-
-            <!-- Calculator 3: Percentage increase/decrease -->
-            <section class="calculator-card" id="calc3">
-                <h2 class="visually-hidden" data-translate-key="calc3Title">Calculate Percentage Increase or Decrease</h2>
-                <div class="input-group">
-                    <span data-translate-key="calc3Label1">What is the percentage increase/decrease</span>
-                </div>
-                <div class="input-group">
-                    <span data-translate-key="calc3Label2">from</span>
-                    <input type="number" id="from3" data-translate-key-placeholder="inputPlaceholderFrom" data-translate-key-aria-label="initialValueAria">
-                    <span data-translate-key="calc3Label3">to</span>
-                    <input type="number" id="to3" data-translate-key-placeholder="inputPlaceholderTo" data-translate-key-aria-label="finalValueAria">
-                    <span data-translate-key="calc3Label4">?</span>
-                    <button class="calculate-btn" data-calc="3" data-translate-key="calculateButton">Calculate</button>
-                    <input type="text" id="result3" class="result-field" readonly data-translate-key-aria-label="resultAria3">
-                    <span>%</span>
-                </div>
-                 <div class="error-message" id="error3"></div>
             </section>
         </main>
 
