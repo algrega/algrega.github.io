@@ -1,39 +1,39 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://algrega.github.io/calculator">
     
-    <!-- Titolo Dinamico - verrà impostato da JavaScript -->
-    <title>Calcolatrice Percentuali</title>
+    <!-- Titolo Dinamico - Default in Inglese, aggiornato da JavaScript -->
+    <title>Percentage Calculator</title>
     
-    <!-- Descrizione Dinamica - verrà impostata da JavaScript -->
-    <meta name="description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
+    <!-- Descrizione Dinamica - Default in Inglese, aggiornata da JavaScript -->
+    <meta name="description" content="Free online Percentage Calculator to easily compute various types of percentages: X% of Y, X is what % of Y, and percentage increase or decrease.">
     
     <!-- Keywords (opzionale, meno impattante oggi ma può aiutare) -->
-    <meta name="keywords" content="calcolatrice percentuali, calcolo percentuale, percentuale, online, gratis, strumento, calcolo aumento percentuale, calcolo sconto percentuale">
+    <meta name="keywords" content="percentage calculator, percent calculator, calculate percentage, online, free, tool, percentage increase, percentage decrease">
 
-    <!-- Hreflang Tags per multilingua -->
-    <link rel="alternate" hreflang="it" href="https://algrega.github.io/calculator">
+    <!-- Hreflang Tags per multilingua - x-default ora punta alla versione inglese (che è l'URL base) -->
     <link rel="alternate" hreflang="en" href="https://algrega.github.io/calculator">
+    <link rel="alternate" hreflang="it" href="https://algrega.github.io/calculator">
     <link rel="alternate" hreflang="x-default" href="https://algrega.github.io/calculator">
 
-    <!-- Open Graph Meta Tags (per Facebook, LinkedIn, etc.) -->
-    <meta property="og:title" content="Calcolatrice Percentuali">
-    <meta property="og:description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
+    <!-- Open Graph Meta Tags (per Facebook, LinkedIn, etc.) - Default in Inglese -->
+    <meta property="og:title" content="Percentage Calculator">
+    <meta property="og:description" content="Free online Percentage Calculator to easily compute various types of percentages: X% of Y, X is what % of Y, and percentage increase or decrease.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://algrega.github.io/calculator">
-    <!-- <meta property="og:image" content="URL_DI_UN_IMMAGINE_LOGO_O_RAPPRESENTATIVA"> -->
-    <meta property="og:site_name" content="Calcolatrice Percentuali">
-    <meta property="og:locale" content="it_IT">
+    <!-- <meta property="og:image" content="URL_TO_A_LOGO_OR_REPRESENTATIVE_IMAGE"> -->
+    <meta property="og:site_name" content="Percentage Calculator">
+    <meta property="og:locale" content="en_US">
 
-    <!-- Twitter Card Meta Tags -->
+    <!-- Twitter Card Meta Tags - Default in Inglese -->
     <meta name="twitter:card" content="summary_large_image"> <!-- o summary -->
-    <meta name="twitter:title" content="Calcolatrice Percentuali">
-    <meta name="twitter:description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
-    <!-- <meta name="twitter:image" content="URL_DI_UN_IMMAGINE_LOGO_O_RAPPRESENTATIVA_PER_TWITTER"> -->
-    <!-- <meta name="twitter:site" content="@tuoTwitterHandle"> -->
+    <meta name="twitter:title" content="Percentage Calculator">
+    <meta name="twitter:description" content="Free online Percentage Calculator to easily compute various types of percentages: X% of Y, X is what % of Y, and percentage increase or decrease.">
+    <!-- <meta name="twitter:image" content="URL_TO_A_LOGO_OR_REPRESENTATIVE_IMAGE_FOR_TWITTER"> -->
+    <!-- <meta name="twitter:site" content="@yourTwitterHandle"> -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -337,13 +337,13 @@
         - Considera di aggiungere un'immagine per og:image e twitter:image per una migliore condivisione sui social.
     -->
 
-    <!-- Schema.org JSON-LD for WebApplication -->
+    <!-- Schema.org JSON-LD for WebApplication - Default in Inglese -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Calcolatrice Percentuali",
-      "description": "Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.",
+      "name": "Percentage Calculator",
+      "description": "Free online Percentage Calculator to easily compute various types of percentages: X% of Y, X is what % of Y, and percentage increase or decrease.",
       "applicationCategory": "Utility",
       "operatingSystem": "All (Web-based)",
       "browserRequirements": "Requires JavaScript support.",
@@ -351,9 +351,9 @@
         "@type": "Offer",
         "price": "0"
       },
-      "inLanguage": ["it", "en"],
+      "inLanguage": ["en", "it"],
       "url": "https://algrega.github.io/calculator", 
-      "keywords": "calcolatrice percentuali, calcolo percentuale, percentuale"
+      "keywords": "percentage calculator, percent calculator, calculate percentage"
     }
     </script>
 </head>
@@ -368,8 +368,8 @@
                 <h1 data-translate-key="mainTitle">Percentage Calculator</h1>
             </div>
             <div class="language-selector">
-                <button data-lang="it" class="lang-btn active">IT</button>
-                <button data-lang="en" class="lang-btn">EN</button>
+                <button data-lang="it" class="lang-btn">IT</button>
+                <button data-lang="en" class="lang-btn active">EN</button> <!-- EN ora è active di default se non c'è localStorage -->
             </div>
         </header>
 
@@ -430,7 +430,7 @@
     </div>
 
     <footer>
-        <p><span data-translate-key="footerVersionPrefix">Versione</span> 1.0.1</p>
+        <p><span data-translate-key="footerVersionPrefix">Version</span> 1.0.1</p>
     </footer>
 
     <script>
@@ -511,7 +511,7 @@
             }
         };
 
-        let currentLanguage = localStorage.getItem('preferredLanguage') || 'it';
+        let currentLanguage = localStorage.getItem('preferredLanguage') || 'en'; // Default to English
 
         function applyTranslations(lang) {
             currentLanguage = lang;
