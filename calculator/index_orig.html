@@ -3,38 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="https://algrega.github.io/calculator">
-    
-    <!-- Titolo Dinamico - verrà impostato da JavaScript -->
     <title>Calcolatrice Percentuali</title>
-    
-    <!-- Descrizione Dinamica - verrà impostata da JavaScript -->
-    <meta name="description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
-    
-    <!-- Keywords (opzionale, meno impattante oggi ma può aiutare) -->
-    <meta name="keywords" content="calcolatrice percentuali, calcolo percentuale, percentuale, online, gratis, strumento, calcolo aumento percentuale, calcolo sconto percentuale">
-
-    <!-- Hreflang Tags per multilingua -->
-    <link rel="alternate" hreflang="it" href="https://algrega.github.io/calculator">
-    <link rel="alternate" hreflang="en" href="https://algrega.github.io/calculator">
-    <link rel="alternate" hreflang="x-default" href="https://algrega.github.io/calculator">
-
-    <!-- Open Graph Meta Tags (per Facebook, LinkedIn, etc.) -->
-    <meta property="og:title" content="Calcolatrice Percentuali">
-    <meta property="og:description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://algrega.github.io/calculator">
-    <!-- <meta property="og:image" content="URL_DI_UN_IMMAGINE_LOGO_O_RAPPRESENTATIVA"> -->
-    <meta property="og:site_name" content="Calcolatrice Percentuali">
-    <meta property="og:locale" content="it_IT">
-
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image"> <!-- o summary -->
-    <meta name="twitter:title" content="Calcolatrice Percentuali">
-    <meta name="twitter:description" content="Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.">
-    <!-- <meta name="twitter:image" content="URL_DI_UN_IMMAGINE_LOGO_O_RAPPRESENTATIVA_PER_TWITTER"> -->
-    <!-- <meta name="twitter:site" content="@tuoTwitterHandle"> -->
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -79,7 +48,6 @@
             width: 100%;
             max-width: 700px;
             animation: fadeIn 0.5s ease-out;
-            margin-bottom: auto; 
         }
 
         @keyframes fadeIn {
@@ -90,15 +58,15 @@
         header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            justify-content: space-between; /* To space out logo/title and lang selector */
+            margin-bottom: 20px; /* Adjusted margin after removing subtitle */
+            flex-wrap: wrap; /* Allow lang selector to wrap on small screens */
         }
         
         .header-main {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 10px; /* Margin for when lang selector wraps */
         }
 
         .logo {
@@ -156,6 +124,7 @@
             border-color: var(--primary-color);
             font-weight: 600;
         }
+
 
         .calculator-card {
             background-color: var(--secondary-color);
@@ -273,14 +242,6 @@
             display: none;
         }
         
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9em;
-            color: var(--light-text-color);
-            width: 100%;
-        }
-
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -289,14 +250,14 @@
                 padding: 20px;
             }
             header {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-direction: column; /* Stack logo/title and lang selector */
+                align-items: flex-start; /* Align items to the start */
             }
             .header-main {
-                margin-bottom: 15px;
+                margin-bottom: 15px; /* Space between title block and lang selector */
             }
             .language-selector {
-                align-self: flex-end;
+                align-self: flex-end; /* Push lang selector to the right */
                 margin-bottom: 10px;
             }
             h1 {
@@ -328,34 +289,8 @@
                 max-width: none;
             }
         }
-    </style>
-    
-    <!-- 
-        NOTE SEO: 
-        - Assicurati di creare e configurare un file robots.txt nella root del tuo sito per guidare i crawler.
-        - Genera e invia una sitemap.xml a Google Search Console e Bing Webmaster Tools.
-        - Considera di aggiungere un'immagine per og:image e twitter:image per una migliore condivisione sui social.
-    -->
 
-    <!-- Schema.org JSON-LD for WebApplication -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Calcolatrice Percentuali",
-      "description": "Calcolatrice Percentuali gratuita per calcolare facilmente le percentuali, inclusi l'incremento/decremento percentuale, la percentuale di un numero e che percentuale è un numero di un altro.",
-      "applicationCategory": "Utility",
-      "operatingSystem": "All (Web-based)",
-      "browserRequirements": "Requires JavaScript support.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0"
-      },
-      "inLanguage": ["it", "en"],
-      "url": "https://algrega.github.io/calculator", 
-      "keywords": "calcolatrice percentuali, calcolo percentuale, percentuale"
-    }
-    </script>
+    </style>
 </head>
 <body>
 
@@ -372,6 +307,7 @@
                 <button data-lang="en" class="lang-btn">EN</button>
             </div>
         </header>
+        <!-- Subtitle removed -->
 
         <main>
             <!-- Calculator 3: Percentage increase/decrease -->
@@ -429,16 +365,11 @@
         </div>
     </div>
 
-    <footer>
-        <p><span data-translate-key="footerVersionPrefix">Versione</span> 1.0.1</p>
-    </footer>
-
     <script>
         const translations = {
             it: {
                 mainTitle: "Calcolatrice Percentuali",
-                metaDescription: "Calcolatrice Percentuali online gratuita per calcolare facilmente vari tipi di percentuali: X% di Y, X è quale % di Y, e l'incremento o decremento percentuale.",
-                ogLocale: "it_IT",
+                // subtitle: "Calcolatrice Percentuali è uno strumento online gratuito per calcolare le percentuali.", // Removed
                 calc1Title: "Calcola Percentuale di un Numero",
                 calc1Label1: "Quanto è il",
                 calc1Label2: "% di",
@@ -462,20 +393,18 @@
                 totalValueForPercentAria: "Valore totale per percentuale",
                 initialValueAria: "Valore iniziale",
                 finalValueAria: "Valore finale",
-                resultAria1: "Risultato del calcolo: percentuale di un numero",
-                resultAria2: "Risultato del calcolo: X è quale percentuale di Y",
-                resultAria3: "Risultato del calcolo: incremento o decremento percentuale",
+                resultAria1: "Risultato del calcolo 1",
+                resultAria2: "Risultato del calcolo 2",
+                resultAria3: "Risultato del calcolo 3",
                 tipsText: "Suggerimenti: Usa Tab per passare al campo successivo. Usa Shift+Tab per tornare al precedente. Premi Invio per calcolare.",
                 errorInvalidNumbers: "Per favore, inserisci numeri validi.",
                 errorDivideByZero: "Impossibile dividere per zero (Valore totale).",
                 errorChangeFromZero: "Impossibile calcolare la variazione percentuale da zero.",
-                errorResult: "Errore",
-                footerVersionPrefix: "Versione"
+                errorResult: "Errore"
             },
             en: {
                 mainTitle: "Percentage Calculator",
-                metaDescription: "Free online Percentage Calculator to easily compute various types of percentages: X% of Y, X is what % of Y, and percentage increase or decrease.",
-                ogLocale: "en_US",
+                // subtitle: "Percentage Calculator is a free online tool to calculate percentages.", // Removed
                 calc1Title: "Calculate Percentage of a Number",
                 calc1Label1: "What is",
                 calc1Label2: "% of",
@@ -499,15 +428,14 @@
                 totalValueForPercentAria: "Total value for percentage",
                 initialValueAria: "Initial value",
                 finalValueAria: "Final value",
-                resultAria1: "Result of calculation: percentage of a number",
-                resultAria2: "Result of calculation: X is what percent of Y",
-                resultAria3: "Result of calculation: percentage increase or decrease",
+                resultAria1: "Result of calculation 1",
+                resultAria2: "Result of calculation 2",
+                resultAria3: "Result of calculation 3",
                 tipsText: "Tips: Use tab to move to the next field. Use shift-tab to move to the previous field. Press enter to calculate.",
                 errorInvalidNumbers: "Please enter valid numbers.",
                 errorDivideByZero: "Cannot divide by zero (Total value).",
                 errorChangeFromZero: "Cannot calculate percentage change from zero.",
-                errorResult: "Error",
-                footerVersionPrefix: "Version"
+                errorResult: "Error"
             }
         };
 
@@ -515,7 +443,7 @@
 
         function applyTranslations(lang) {
             currentLanguage = lang;
-            document.documentElement.lang = lang; 
+            document.documentElement.lang = lang; // Update lang attribute on <html>
 
             document.querySelectorAll('[data-translate-key]').forEach(element => {
                 const key = element.dataset.translateKey;
@@ -538,41 +466,7 @@
                 }
             });
 
-            // Update page title
-            if (translations[lang] && translations[lang].mainTitle) {
-                document.title = translations[lang].mainTitle;
-            }
-
-            // Update meta description
-            const metaDescriptionTag = document.querySelector('meta[name="description"]');
-            if (metaDescriptionTag && translations[lang] && translations[lang].metaDescription) {
-                metaDescriptionTag.setAttribute('content', translations[lang].metaDescription);
-            }
-
-            // Update Open Graph tags
-            const ogTitleTag = document.querySelector('meta[property="og:title"]');
-            if (ogTitleTag && translations[lang] && translations[lang].mainTitle) {
-                ogTitleTag.setAttribute('content', translations[lang].mainTitle);
-            }
-            const ogDescriptionTag = document.querySelector('meta[property="og:description"]');
-            if (ogDescriptionTag && translations[lang] && translations[lang].metaDescription) {
-                ogDescriptionTag.setAttribute('content', translations[lang].metaDescription);
-            }
-            const ogLocaleTag = document.querySelector('meta[property="og:locale"]');
-            if (ogLocaleTag && translations[lang] && translations[lang].ogLocale) {
-                ogLocaleTag.setAttribute('content', translations[lang].ogLocale);
-            }
-            
-            // Update Twitter Card tags
-            const twitterTitleTag = document.querySelector('meta[name="twitter:title"]');
-            if (twitterTitleTag && translations[lang] && translations[lang].mainTitle) {
-                twitterTitleTag.setAttribute('content', translations[lang].mainTitle);
-            }
-            const twitterDescriptionTag = document.querySelector('meta[name="twitter:description"]');
-            if (twitterDescriptionTag && translations[lang] && translations[lang].metaDescription) {
-                twitterDescriptionTag.setAttribute('content', translations[lang].metaDescription);
-            }
-
+            // Update active class on language buttons
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
@@ -580,7 +474,7 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            applyTranslations(currentLanguage); 
+            applyTranslations(currentLanguage); // Apply translations on load
 
             const calculateButtons = document.querySelectorAll('.calculate-btn');
             calculateButtons.forEach(button => {
@@ -615,11 +509,13 @@
                 const errorField = document.getElementById(`error${calcType}`);
                 const resultField = document.getElementById(`result${calcType}`);
 
+                // Clear previous errors/results
                 if(errorField) {
                     errorField.textContent = '';
                     errorField.style.display = 'none';
                 }
                 if(resultField) resultField.value = '';
+
 
                 try {
                     let val1, val2;
@@ -646,9 +542,9 @@
 
                 } catch (error) {
                     if (errorField) {
-                        const errorMessage = (error.key && translations[currentLanguage] && translations[currentLanguage][error.key]) 
+                        const errorMessage = (error.key && translations[currentLanguage][error.key]) 
                                            ? translations[currentLanguage][error.key] 
-                                           : (typeof error === 'string' ? error : (translations[currentLanguage] ? translations[currentLanguage].errorResult : 'Error'));
+                                           : (typeof error === 'string' ? error : translations[currentLanguage].errorResult || 'Error');
                         errorField.textContent = errorMessage;
                         errorField.style.display = 'block';
                     }
@@ -658,10 +554,9 @@
 
             function formatResult(value) {
                 if (isNaN(value) || !isFinite(value)) {
-                    return translations[currentLanguage] ? translations[currentLanguage].errorResult : "Error";
+                    return translations[currentLanguage].errorResult || "Error";
                 }
-                const rounded = parseFloat(value.toFixed(2));
-                return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2);
+                return Number.isInteger(value) ? value.toString() : value.toFixed(2);
             }
         });
     </script>
