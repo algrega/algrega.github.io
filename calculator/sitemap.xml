@@ -1,0 +1,10 @@
+<!-- Esempio di sitemap.xml per una singola pagina -->
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://algrega.github.io/calculator</loc>
+    <lastmod>2025-05-10</lastmod> <!-- Data dell'ultima modifica significativa -->
+    <changefreq>monthly</changefreq> <!-- O yearly, se non prevedi aggiornamenti frequenti -->
+    <priority>1.0</priority>
+  </url>
+</urlset>
