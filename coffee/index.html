@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Call - Chi offre oggi?</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #8B5A2B; /* Marrone caffè scuro */
+            --secondary-color: #D4A373; /* Caramello / Marrone chiaro */
+            --background-color: #FDF8F5; /* Beige chiarissimo, quasi bianco */
+            --text-color: #4A3B31; /* Marrone testo profondo */
+            --card-background: #FFFBF7; /* Bianco panna */
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(74, 59, 49, 0.1); /* Ombra più calda */
+            --transition-speed: 0.3s;
+            --green-present: #6A994E; /* Verde oliva / Matcha, sta bene col marrone */
+            --grey-neutral: #A8A098; /* Grigio caldo */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: var(--card-background);
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 850px; /* Leggermente più largo per il tema caffè */
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 700; /* Più bold per un titolo giocoso */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 .fa-coffee {
+            margin-right: 12px;
+            font-size: 1.3em;
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: coffeeSteam 1.5s ease-out forwards 0.2s, floatIcon 3s ease-in-out infinite 1.7s;
+        }
+
+        @keyframes coffeeSteam {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+
+        p.subtitle {
+            color: var(--secondary-color);
+            margin-bottom: 15px; /* Ridotto per fare spazio al nuovo div */
+            font-size: 1em;
+            font-weight: 400;
+        }
+
+        #today-presence-info {
+            color: var(--primary-color);
+            font-size: 1.05em;
+            font-weight: 500;
+            margin-bottom: 30px; /* Spazio prima della tabella */
+            padding: 10px 15px;
+            background-color: #FDF3EC;
+            border-radius: 8px;
+            display: inline-block; /* Per centrare con text-align del container */
+            min-height: 20px; /* Per evitare "sfarfallio" se il testo arriva tardi */
+        }
+         #today-presence-info .fa-mug-saucer {
+            color: var(--green-present);
+            margin-right: 8px;
+         }
+         #today-presence-info strong {
+            font-weight: 600;
+         }
+
+
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            border: 1px solid #EAE0D9; /* Bordo leggero per il wrapper */
+            border-radius: calc(var(--border-radius) - 2px); /* Angoli arrotondati */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .presence-matrix {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+        }
+
+        .presence-matrix th,
+        .presence-matrix td {
+            border: none; /* Rimuoviamo i bordi interni, li gestiamo con separatori */
+            border-bottom: 1px solid #EAE0D9; /* Separatore orizzontale */
+            padding: 14px 18px;
+            text-align: center;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+            white-space: nowrap;
+        }
+        .presence-matrix tr:last-child td {
+            border-bottom: none; /* Nessun bordo per l'ultima riga */
+        }
+
+        .presence-matrix th {
+            background-color: var(--primary-color);
+            color: var(--card-background);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+         .presence-matrix th:first-child {
+            left: 0;
+            z-index: 3;
+            border-top-left-radius: calc(var(--border-radius) - 3px); /* Angolo per header sticky */
+         }
+         .presence-matrix th:last-child {
+            border-top-right-radius: calc(var(--border-radius) - 3px);
+         }
+
+
+        .presence-matrix td.person-name {
+            text-align: left;
+            font-weight: 600; /* Nome persona più in evidenza */
+            background-color: var(--card-background); /* Sfondo coerente per sticky */
+            color: var(--primary-color);
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            border-right: 1px solid #EAE0D9; /* Separatore verticale per colonna nomi */
+        }
+        .presence-matrix tr:hover td.person-name {
+            background-color: #FDF3EC; /* Leggero hover per nome persona */
+        }
+
+
+        .presence-matrix td.status-cell {
+            font-size: 1.6em;
+            position: relative;
+        }
+
+        .presence-matrix .fa-mug-saucer {
+            color: var(--green-present);
+            opacity: 0;
+            transform: scale(0.5) rotate(-15deg);
+            animation: popInMug 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6) forwards;
+            cursor: pointer;
+        }
+
+        .presence-matrix .fa-bed {
+            color: var(--grey-neutral);
+            opacity: 0;
+            transform: scale(0.5);
+            animation: popInMug 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6) forwards 0.1s;
+            cursor: pointer;
+        }
+
+        @keyframes popInMug {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(-15deg);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.1) rotate(5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .presence-matrix tr:hover td:not(.person-name) {
+            background-color: #FAF5F0;
+        }
+
+        .presence-matrix td.status-cell i:hover {
+            transform: scale(1.2) rotate(10deg);
+            transition: transform 0.2s ease-out;
+        }
+
+        .legend {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+            padding: 10px 15px;
+            background-color: #F7F1EC;
+            border-radius: 8px;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            color: var(--text-color);
+        }
+
+        .legend-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(74, 59, 49, 0.08);
+        }
+
+        .legend-item i {
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
+
+        #global-tooltip {
+            visibility: hidden;
+            width: 160px;
+            background-color: var(--text-color);
+            color: var(--card-background);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: fixed;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.2s, visibility 0.2s;
+            font-size: 0.85em;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            pointer-events: none;
+        }
+
+        #global-tooltip.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #global-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--text-color) transparent transparent transparent;
+        }
+
+
+        .container {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes slideUpFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .presence-matrix th, .presence-matrix td {
+            opacity: 0;
+            animation: fadeInCell 0.6s ease-out forwards;
+        }
+
+        .presence-matrix tr { --base-delay-row: 0s; }
+        .presence-matrix tr:nth-child(1) { --base-delay-row: 0.2s; }
+        .presence-matrix tr:nth-child(2) { --base-delay-row: 0.25s; }
+        .presence-matrix tr:nth-child(3) { --base-delay-row: 0.3s; }
+        .presence-matrix tr:nth-child(4) { --base-delay-row: 0.35s; }
+        .presence-matrix tr:nth-child(5) { --base-delay-row: 0.4s; }
+        .presence-matrix tr:nth-child(6) { --base-delay-row: 0.45s; }
+
+        .presence-matrix th, .presence-matrix td {
+            animation-delay: calc(var(--base-delay-row) + (var(--col-index, 0) * 0.05s));
+        }
+        .presence-matrix th:nth-child(1), .presence-matrix td:nth-child(1) { --col-index: 0; }
+        .presence-matrix th:nth-child(2), .presence-matrix td:nth-child(2) { --col-index: 1; }
+        .presence-matrix th:nth-child(3), .presence-matrix td:nth-child(3) { --col-index: 2; }
+        .presence-matrix th:nth-child(4), .presence-matrix td:nth-child(4) { --col-index: 3; }
+        .presence-matrix th:nth-child(5), .presence-matrix td:nth-child(5) { --col-index: 4; }
+        .presence-matrix th:nth-child(6), .presence-matrix td:nth-child(6) { --col-index: 5; }
+
+
+        @keyframes fadeInCell {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 25px 20px;
+                 margin-top: 15px;
+                 margin-bottom: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h1 .fa-coffee {
+                font-size: 1.2em;
+            }
+            p.subtitle {
+                font-size: 0.9em;
+                margin-bottom: 10px;
+            }
+            #today-presence-info {
+                font-size: 0.95em;
+                margin-bottom: 25px;
+            }
+
+            .presence-matrix th,
+            .presence-matrix td {
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+            .presence-matrix td.status-cell {
+                font-size: 1.4em;
+            }
+            .legend {
+                gap: 12px;
+                margin-top: 25px;
+            }
+            .legend-item {
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+            .legend-item i {
+                font-size: 1.2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+             body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px 15px;
+            }
+             h1 {
+                font-size: 1.6em;
+                 flex-direction: column;
+                 align-items: center;
+            }
+            h1 .fa-coffee {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+            p.subtitle {
+                font-size: 0.8em;
+                 margin-bottom: 8px;
+            }
+            #today-presence-info {
+                font-size: 0.85em;
+                margin-bottom: 20px;
+                padding: 8px 10px;
+            }
+            .presence-matrix th,
+            .presence-matrix td {
+                padding: 8px 10px;
+                font-size: 0.8em;
+            }
+             .presence-matrix td.status-cell {
+                font-size: 1.3em;
+            }
+             #global-tooltip {
+                font-size: 0.8em;
+                padding: 6px 8px;
+                width: 130px;
+            }
+            .legend {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-coffee"></i>Allerta Caffè!</h1>
+        <p class="subtitle">Chi si unisce per una dose di caffeina oggi?</p>
+        <div id="today-presence-info"></div> <!-- Nuovo elemento per info presenze odierne -->
+
+        <div class="table-responsive-wrapper">
+            <table class="presence-matrix">
+                <thead>
+                    <tr>
+                        <th>Caffè con</th>
+                        <th>Lunedì</th>
+                        <th>Martedì</th>
+                        <th>Mercoledì</th>
+                        <th>Giovedì</th>
+                        <th>Venerdì</th>
+                    </tr>
+                </thead>
+                <tbody id="presence-tbody">
+                    <!-- Righe generate da JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <i class="fas fa-mug-saucer" style="color: var(--green-present);"></i> Pronto/a per il caffè!
+            </div>
+            <div class="legend-item">
+                <i class="fas fa-bed" style="color: var(--grey-neutral);"></i> ...forse un altro giorno.
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip Globale -->
+    <div id="global-tooltip"></div>
+
+    <script>
+        const persone = {
+            'A': 'Alessio',
+            'G': 'Greg',
+            'M': 'Marco',
+            'P': 'Paolo',
+            'V': 'Vale',
+            'F': 'Fede'
+        };
+
+        const presenze = {
+            'Lunedì': ['A', 'G', 'M', 'F', 'V', 'P'],
+            'Martedì': ['G', 'M', 'V', 'P'],
+            'Mercoledì': ['A', 'G', 'F'],
+            'Giovedì': ['M', 'F', 'V'],
+            'Venerdì': ['A']
+            // Sabato e Domenica non sono definiti, il che è corretto per questo scenario
+        };
+
+        const giorniSettimana = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+        const globalTooltip = document.getElementById('global-tooltip');
+        const todayPresenceInfoDiv = document.getElementById('today-presence-info');
+
+
+        function showTooltip(targetElement, tooltipText) {
+            globalTooltip.textContent = tooltipText;
+            globalTooltip.classList.add('visible');
+
+            const targetRect = targetElement.getBoundingClientRect();
+            const tooltipRect = globalTooltip.getBoundingClientRect();
+
+            let top = targetRect.top - tooltipRect.height - 10; // Aumentato leggermente lo spazio per la freccia
+            let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+
+            if (left < 5) {
+                left = 5;
+            }
+            if (left + tooltipRect.width > window.innerWidth - 5) {
+                left = window.innerWidth - tooltipRect.width - 5;
+            }
+            if (top < 5) {
+                top = targetRect.bottom + 10;
+                 // Per una freccia dinamica (sopra/sotto), si dovrebbe aggiungere/rimuovere una classe
+                 // che modifica la proprietà `top` e `border-color` di `#global-tooltip::after`.
+                 // Esempio: globalTooltip.classList.add('arrow-bottom');
+            } else {
+                // globalTooltip.classList.remove('arrow-bottom');
+            }
+
+
+            globalTooltip.style.top = `${top}px`;
+            globalTooltip.style.left = `${left}px`;
+        }
+
+        function hideTooltip() {
+            globalTooltip.classList.remove('visible');
+        }
+
+        function getDayName() {
+            const date = new Date();
+            const dayIndex = date.getDay(); // 0 (Domenica) - 6 (Sabato)
+            // Mappiamo l'indice del giorno ai nomi usati nell'oggetto 'presenze'
+            const dayNames = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+            return dayNames[dayIndex];
+        }
+
+        function displayTodayPresence() {
+            const todayDayName = getDayName();
+            const personePresentiOggiSigle = presenze[todayDayName];
+
+            let message = `Oggi è <strong>${todayDayName}</strong>. `;
+
+            if (personePresentiOggiSigle && personePresentiOggiSigle.length > 0) {
+                const nomiPersonePresenti = personePresentiOggiSigle
+                    .map(sigla => persone[sigla])
+                    .sort((a,b) => a.localeCompare(b)); // Ordina i nomi alfabeticamente
+
+                message += `<i class="fas fa-mug-saucer"></i> Pronti per il caffè: <strong>${nomiPersonePresenti.join(', ')}</strong>!`;
+            } else if (giorniSettimana.includes(todayDayName)) {
+                message += "Sembra che oggi nessuno sia disponibile per il caffè. Che tristezza!";
+            } else { // Weekend o giorno non lavorativo
+                message += "Goditi il riposo, oggi niente caffè di gruppo! ☕";
+            }
+            todayPresenceInfoDiv.innerHTML = message;
+        }
+
+        function popolaMatrice() {
+            const tbody = document.getElementById('presence-tbody');
+            tbody.innerHTML = '';
+
+            const sortedPersoneKeys = Object.keys(persone).sort((a, b) => persone[a].localeCompare(persone[b]));
+
+            sortedPersoneKeys.forEach((siglaPersona, personIdx) => {
+                const nomeCompleto = persone[siglaPersona];
+                const row = tbody.insertRow();
+                row.style.setProperty('--base-delay-row', `${0.2 + personIdx * 0.06}s`);
+
+                const cellNome = row.insertCell();
+                cellNome.textContent = nomeCompleto;
+                cellNome.classList.add('person-name');
+                cellNome.style.setProperty('--col-index', '0');
+
+                giorniSettimana.forEach((giorno, giornoIdx) => {
+                    const cellGiorno = row.insertCell();
+                    cellGiorno.classList.add('status-cell');
+                    cellGiorno.style.setProperty('--col-index', `${giornoIdx + 1}`);
+
+                    const iconDelay = 0.45 + (personIdx * 0.07) + (giornoIdx * 0.04);
+                    const personePresentiOggi = presenze[giorno] || [];
+                    const icon = document.createElement('i');
+                    icon.classList.add('fas');
+                    icon.style.animationDelay = `${iconDelay}s`;
+
+                    let tooltipTextContent = '';
+
+                    if (personePresentiOggi.includes(siglaPersona)) {
+                        icon.classList.add('fa-mug-saucer');
+                        tooltipTextContent = `${nomeCompleto} è dei nostri per un caffè!`;
+                    } else {
+                        icon.classList.add('fa-bed');
+                        tooltipTextContent = `Oggi ${nomeCompleto} salta il giro... Zzz...`;
+                    }
+
+                    icon.addEventListener('mouseenter', (event) => showTooltip(event.target, tooltipTextContent));
+                    icon.addEventListener('mouseleave', hideTooltip);
+
+                    cellGiorno.appendChild(icon);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            popolaMatrice();
+            displayTodayPresence(); // Chiama la nuova funzione dopo aver popolato la matrice
+        });
+    </script>
+
+</body>
+</html>
