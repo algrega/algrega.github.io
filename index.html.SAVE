@@ -188,7 +188,7 @@
         #input-card .form-group:nth-child(3) { animation-delay: 0.26s; } /* Lunch End */
         #intermediate-breaks-section { animation-delay: 0.34s; opacity: 0; transform: translateX(-10px); animation: slideFadeIn 0.4s ease forwards; } /* Intermediate Breaks Section */
         #input-card .form-group:nth-child(5) { animation-delay: 0.42s; } /* Part-Time Toggle */
-        #input-card .form-group:nth-child(6) { animation-delay: 0.50s; } /* Remote Work Toggle (Hidden, but keeps timing) */
+        #input-card .form-group:nth-child(6) { animation-delay: 0.50s; } /* Remote Work Toggle */
         #input-card > button#calculate-btn { animation-delay: 0.58s; } /* Calculate button */
 
         label {
@@ -441,19 +441,19 @@
             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
             <ul>
                 <li>L'orario di ingresso non può essere precedente alle <strong>08:00</strong>.</li>
-                <li>Seleziona la modalità operativa: puoi attivare <strong>Part-Time</strong> (6h). Se nessuna è attiva, si applica il Full-Time standard (7h 12m).</li>
+                <li>Seleziona la modalità operativa: puoi attivare <strong>Part-Time</strong> (6h), <strong>Lavoro da Remoto</strong> (7h 12m, regole specifiche) o <strong>entrambe</strong>. Se nessuna è attiva, si applica il Full-Time standard (7h 12m).</li>
                 <li class="part-time-rule">In <strong>Part-Time</strong>, la giornata lavorativa standard diventa di <strong>6 ore</strong> (<code>6h 00m</code>).</li>
-                <li class="remote-rule" hidden>In <strong>Lavoro da Remoto</strong>, la giornata lavorativa standard è <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>), ma si applicano regole specifiche per pausa/bonus/buono.</li>
-                <li class="combined-rule" hidden>Se <strong>entrambe</strong> le modalità (Part-Time e Remoto) sono attive, la giornata lavorativa è di <strong>6 ore</strong> (<code>6h 00m</code>) e si applicano le regole del <strong>Lavoro da Remoto</strong> per pausa pranzo, bonus e buono pasto.</li>
+                <li class="remote-rule">In <strong>Lavoro da Remoto</strong>, la giornata lavorativa standard è <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>), ma si applicano regole specifiche per pausa/bonus/buono.</li>
+                <li class="combined-rule">Se <strong>entrambe</strong> le modalità (Part-Time e Remoto) sono attive, la giornata lavorativa è di <strong>6 ore</strong> (<code>6h 00m</code>) e si applicano le regole del <strong>Lavoro da Remoto</strong> per pausa pranzo, bonus e buono pasto.</li>
                 <li class="intermediate-rule"><strong>Pause Intermedie:</strong> Puoi aggiungere uscite/rientri intermedi. La loro durata totale viene aggiunta all'orario di uscita previsto e sottratta dalle ore lavorate effettive.</li>
-                <li><strong>Pausa Pranzo (Standard/Part-Time):</strong> Se inserisci orari di pausa pranzo:
+                <li><strong>Pausa Pranzo (Standard/Part-Time NON Remoto):</strong> Se inserisci orari di pausa pranzo:
                     <ul>
                         <li>Durata minima calcolata per l'uscita: <strong>30 minuti</strong>.</li>
                         <li>Se pausa effettiva > 30 min, ottieni un <strong>Bonus</strong> (tempo eccedente fino a max <strong>10 minuti</strong>) sottratto dal totale ore da lavorare.</li>
                         <li>Buono pasto: Considerato valido se la pausa viene effettuata.</li>
                     </ul>
                  </li>
-                 <li class="remote-rule" hidden><strong>Pausa Pranzo (Lavoro da Remoto, anche se Part-Time):</strong> Se inserisci orari di pausa pranzo:
+                 <li class="remote-rule"><strong>Pausa Pranzo (Lavoro da Remoto, anche se Part-Time):</strong> Se inserisci orari di pausa pranzo:
                     <ul>
                         <li>Durata minima calcolata per l'uscita: <strong>30 minuti</strong>.</li>
                         <li><strong>Nessun Bonus</strong> applicato, indipendentemente dalla durata.</li>
@@ -461,8 +461,8 @@
                     </ul>
                 </li>
                 <li>Se non inserisci gli orari di pausa pranzo, non viene applicata nessuna pausa, bonus o buono pasto.</li>
-                <li><strong>Orario di Uscita Previsto:</strong> <code>Ingresso + Durata Standard (in base a Part-Time) + Durata Pausa Pranzo Calcolata (min 30m) + Durata Totale Pause Intermedie - Bonus Pausa Pranzo (max 10m)</code>.</li>
-                <li><strong>Totale Ore Lavorate:</strong> <code>Uscita Effettiva - Ingresso - Durata Pausa Pranzo Effettiva (durante orario lavoro) - Durata Totale Pause Intermedie (durante orario lavoro) + Bonus Pausa Pranzo</code>.</li>
+                <li><strong>Orario di Uscita Previsto:</strong> <code>Ingresso + Durata Standard (in base a Part-Time) + Durata Pausa Pranzo Calcolata (min 30m) + Durata Totale Pause Intermedie - Bonus Pausa Pranzo (solo se NON Remoto, max 10m)</code>.</li>
+                <li><strong>Totale Ore Lavorate:</strong> <code>Uscita Effettiva - Ingresso - Durata Pausa Pranzo Effettiva (durante orario lavoro) - Durata Totale Pause Intermedie (durante orario lavoro) + Bonus Pausa Pranzo (solo se NON Remoto)</code>.</li>
                 <li>La <strong>Differenza dal previsto</strong> confronta le ore lavorate con la durata standard della modalità selezionata (<code>6h 00m</code> se Part-Time, <code>7h 12m</code> altrimenti).</li>
             </ul>
         </section>
@@ -499,8 +499,7 @@
                      </div>
                  </label>
             </div>
-            <!-- MODIFICA: Aggiunto attributo 'hidden' per nascondere l'opzione Lavoro da Remoto -->
-            <div class="form-group" hidden>
+            <div class="form-group">
                  <label class="toggle-switch-label" for="remote-work-toggle">
                      <span id="remote-work-label">Lavoro da Remoto</span>
                      <div class="toggle-switch">
