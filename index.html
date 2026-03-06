@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker v8</title> <!-- Updated Version -->
+    <title>Time Tracker v9</title> <!-- Updated Version -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -149,6 +149,16 @@
         .dark-theme #theme-toggle-btn .fa-moon { transform: rotate(360deg); }
         #theme-toggle-btn .fa-sun { transform: rotate(0deg); }
         .dark-theme #theme-toggle-btn .fa-sun { transform: rotate(360deg); }
+        .app-error {
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border: 1px solid color-mix(in srgb, var(--danger-color) 35%, transparent);
+            border-radius: var(--border-radius-md);
+            background-color: color-mix(in srgb, var(--danger-color) 12%, transparent);
+            color: var(--danger-color);
+            font-size: calc(var(--base-font-size) * 0.9);
+            font-weight: 500;
+        }
 
         /* --- Cards --- */
         .card {
@@ -213,7 +223,7 @@
         input[type="time"]::-webkit-calendar-picker-indicator {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>') no-repeat center center;
             background-size: 16px 16px; opacity: 0.6; cursor: pointer; transition: opacity var(--transition-fast);
-            filter: var(--dark-theme) invert(0.8);
+            filter: none;
         }
         input[type="time"]:hover::-webkit-calendar-picker-indicator { opacity: 0.9; }
         .dark-theme input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
@@ -428,14 +438,15 @@
         <header>
             <h1><i class="fas fa-stopwatch-20"></i> Time Tracker</h1>
             <div class="header-controls">
-                <button id="rules-toggle-btn" class="icon-button" title="Mostra/Nascondi Regole">
+                <button id="rules-toggle-btn" class="icon-button" type="button" title="Mostra/Nascondi Regole" aria-label="Mostra o nascondi regole" aria-controls="rules-section" aria-expanded="false">
                     <i class="fas fa-info-circle"></i>
                 </button>
-                <button id="theme-toggle-btn" class="icon-button" title="Cambia Tema">
+                <button id="theme-toggle-btn" class="icon-button" type="button" title="Cambia Tema" aria-label="Cambia tema" aria-pressed="false">
                     <i class="fas fa-moon"></i>
                 </button>
             </div>
         </header>
+        <div id="app-error" class="app-error" role="alert" aria-live="assertive" hidden></div>
 
         <section class="rules-section card" id="rules-section">
             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
@@ -470,7 +481,7 @@
         <div class="card" id="input-card">
             <div class="form-group">
                 <label for="entry-time"><i class="fas fa-right-to-bracket"></i>Orario di ingresso:</label>
-                <input type="time" id="entry-time" required>
+                <input type="time" id="entry-time" min="08:00" required>
             </div>
             <div class="form-group">
                 <label for="lunch-start"><i class="fas fa-utensils"></i>Uscita per pausa pranzo:</label>
@@ -509,7 +520,7 @@
                      </div>
                  </label>
             </div>
-            <button id="calculate-btn" class="main-action"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
+            <button id="calculate-btn" class="main-action" type="button"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
         </div>
 
         <div class="card result-card" id="result-card">
@@ -536,7 +547,7 @@
                 <label for="actual-exit-time"><i class="fas fa-check-double"></i>Orario effettivo di uscita:</label>
                 <input type="time" id="actual-exit-time">
             </div>
-            <button id="calculate-hours-btn" class="main-action"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
+            <button id="calculate-hours-btn" class="main-action" type="button"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
         </div>
 
         <div class="card actual-exit-card" id="actual-exit-card">
@@ -558,12 +569,10 @@
             const themeButtonIcon = themeToggleButton.querySelector('.fas');
             const rulesToggleButton = document.getElementById("rules-toggle-btn");
             const rulesSection = document.getElementById("rules-section");
+            const appErrorEl = document.getElementById("app-error");
             const partTimeToggle = document.getElementById('part-time-toggle');
             const remoteWorkToggle = document.getElementById('remote-work-toggle');
             const targetHoursLabel = document.getElementById('target-hours-label');
-            // Labels for ::after content styling
-            const partTimeLabelSpan = document.getElementById('part-time-label');
-            const remoteWorkLabelSpan = document.getElementById('remote-work-label');
 
             const calculateBtn = document.getElementById("calculate-btn");
             const calculateHoursBtn = document.getElementById("calculate-hours-btn");
@@ -602,6 +611,7 @@
                 document.body.classList.toggle("dark-theme", isDark);
                 themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`;
                 themeToggleButton.title = isDark ? "Passa a Tema Chiaro" : "Passa a Tema Scuro";
+                themeToggleButton.setAttribute("aria-pressed", isDark ? "true" : "false");
                 localStorage.setItem("darkTheme", isDark ? "true" : "false");
             }
             const savedTheme = localStorage.getItem("darkTheme") === "true";
@@ -614,6 +624,7 @@
              rulesToggleButton.addEventListener("click", () => {
                  const isShown = rulesSection.classList.toggle("show");
                  rulesToggleButton.title = isShown ? "Nascondi Regole" : "Mostra Regole";
+                 rulesToggleButton.setAttribute("aria-expanded", isShown ? "true" : "false");
                  rulesToggleButton.querySelector('.fas').className = `fas ${isShown ? 'fa-times-circle' : 'fa-info-circle'}`;
              });
 
@@ -659,8 +670,27 @@
                 });
             }
 
-            function showAppAlert(message) {
-                alert(message);
+            function clearAppAlert() {
+                appErrorEl.textContent = "";
+                appErrorEl.hidden = true;
+            }
+
+            function showAppAlert(message, field) {
+                appErrorEl.textContent = message;
+                appErrorEl.hidden = false;
+                if (field) field.setAttribute("aria-invalid", "true");
+            }
+
+            function clearFieldError(field) {
+                if (field) field.removeAttribute("aria-invalid");
+            }
+
+            function formatTargetHoursLabel(targetMinutes, isPartTime, isRemoteWork) {
+                const base = minutesToTimeString(targetMinutes);
+                if (isRemoteWork && isPartTime) return `${base} (Remoto + Part-Time)`;
+                if (isRemoteWork) return `${base} (Remoto)`;
+                if (isPartTime) return `${base} (Part-Time)`;
+                return base;
             }
 
              // --- Mode Toggles Handling (Part-Time & Remote - Can be combined) ---
@@ -674,30 +704,8 @@
                  document.body.classList.toggle('part-time-active', isPartTime);
                  document.body.classList.toggle('remote-work-active', isRemoteWork);
 
-                 let targetLabelText = '';
-                 let baseMinutes;
-
-                 // Determine target hours (Part-Time takes precedence)
-                 if (isPartTime) {
-                    baseMinutes = PART_TIME_WORKDAY_MINUTES;
-                    targetLabelText = minutesToTimeString(baseMinutes);
-                 } else {
-                     baseMinutes = FULL_TIME_WORKDAY_MINUTES;
-                     targetLabelText = minutesToTimeString(baseMinutes);
-                 }
-
-                 // Add remote indicator to label if needed
-                 if (isRemoteWork) {
-                     targetLabelText += ' (Remoto)';
-                     if (isPartTime) {
-                         targetLabelText += ' - Part-Time'; // Optional: Be more explicit
-                     }
-                 } else if (isPartTime) {
-                     targetLabelText += ' (Part-Time)';
-                 }
-
-
-                 targetHoursLabel.textContent = targetLabelText;
+                 const baseMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
+                 targetHoursLabel.textContent = formatTargetHoursLabel(baseMinutes, isPartTime, isRemoteWork);
 
                  // Reset results when mode changes
                  resultCard.classList.remove('show');
@@ -766,16 +774,21 @@
                 const isPartTime = partTimeToggle.checked;
                 const isRemoteWork = remoteWorkToggle.checked;
 
+                [entryTimeInput, lunchStartInput, lunchEndInput, actualExitTimeInput].forEach(clearFieldError);
+                intermediateBreaksContainer
+                    .querySelectorAll('.intermediate-start-input, .intermediate-end-input')
+                    .forEach(clearFieldError);
+
                 // --- Input Validation ---
                 if (entryMinutes === null) {
-                    showAppAlert("Per favore, inserisci un orario di ingresso valido.");
+                    showAppAlert("Per favore, inserisci un orario di ingresso valido.", entryTimeInput);
                     entryTimeInput.focus();
                     return { success: false };
                 }
 
                 // Check if entry time is before 08:00
                 if (entryMinutes < MIN_ENTRY_TIME_MINUTES) {
-                    showAppAlert("L'orario di ingresso non può essere precedente alle 08:00.");
+                    showAppAlert("L'orario di ingresso non può essere precedente alle 08:00.", entryTimeInput);
                     entryTimeInput.focus();
                     return { success: false };
                 }
@@ -793,12 +806,15 @@
                         correctedLunchEndMinutes += (24 * 60);
                     }
                     if (correctedLunchEndMinutes <= lunchStartMinutes) {
-                        showAppAlert("L'orario di rientro dalla pausa pranzo non è valido.");
+                        showAppAlert("L'orario di rientro dalla pausa pranzo non è valido.", lunchEndInput);
                         lunchEndInput.focus();
                         return { success: false };
                     }
                 } else if (hasLunchStart || hasLunchEnd) {
-                    showAppAlert("Inserisci sia l'uscita che il rientro per la pausa pranzo, o lasciali entrambi vuoti.");
+                    showAppAlert(
+                        "Inserisci sia l'uscita che il rientro per la pausa pranzo, o lasciali entrambi vuoti.",
+                        hasLunchStart ? lunchEndInput : lunchStartInput
+                    );
                     if (hasLunchStart) lunchEndInput.focus(); else lunchStartInput.focus();
                     return { success: false };
                 }
@@ -822,7 +838,7 @@
                             correctedEndMins += (24 * 60);
                         }
                         if (correctedEndMins <= startMins) {
-                            showAppAlert(`Orario di rientro non valido per la pausa intermedia #${i + 1}.`);
+                            showAppAlert(`Orario di rientro non valido per la pausa intermedia #${i + 1}.`, endInput);
                             endInput.focus();
                             intermediateValidationFailed = true;
                             break;
@@ -831,7 +847,10 @@
                         totalIntermediateBreakMinutes += duration;
                         intermediateBreaksData.push({ start: startMins, end: endMins, correctedEnd: correctedEndMins, duration: duration });
                     } else if (startMins !== null || endMins !== null) {
-                        showAppAlert(`Inserisci sia l'uscita che il rientro per la pausa intermedia #${i + 1}, o lasciala vuota.`);
+                        showAppAlert(
+                            `Inserisci sia l'uscita che il rientro per la pausa intermedia #${i + 1}, o lasciala vuota.`,
+                            startMins === null ? startInput : endInput
+                        );
                         if (startMins === null) startInput.focus(); else endInput.focus();
                         intermediateValidationFailed = true;
                         break;
@@ -933,6 +952,7 @@
                 const calculation = calculateTimes();
 
                 if (calculation.success) {
+                    clearAppAlert();
                     const res = calculation.results;
 
                     // Update first card (Predicted Exit)
@@ -971,7 +991,7 @@
 
             calculateHoursBtn.addEventListener("click", function() {
                 if (!actualExitTimeInput.value || timeToMinutes(actualExitTimeInput.value) === null) {
-                     showAppAlert("Inserisci un orario effettivo di uscita valido per calcolare le ore lavorate.");
+                     showAppAlert("Inserisci un orario effettivo di uscita valido per calcolare le ore lavorate.", actualExitTimeInput);
                      actualExitTimeInput.focus();
                      return;
                 }
@@ -979,6 +999,7 @@
                 const calculation = calculateTimes();
 
                 if (calculation.success) {
+                    clearAppAlert();
                     const res = calculation.results;
 
                      // Update first card (again, for consistency)
@@ -1016,10 +1037,8 @@
                         pulseElement(hoursDifferenceEl);
 
                         // Update target hours label in difference section
-                         let diffTargetLabel = minutesToTimeString(res.targetWorkMinutes);
-                         if (res.isRemoteWork) diffTargetLabel += " (Remoto)";
-                         else if (res.isPartTime) diffTargetLabel += " (Part-Time)";
-                         document.getElementById('target-hours-label').textContent = diffTargetLabel; // Update the label here specifically
+                        document.getElementById('target-hours-label').textContent =
+                            formatTargetHoursLabel(res.targetWorkMinutes, res.isPartTime, res.isRemoteWork);
 
 
                         displayCard(resultCard);
@@ -1037,13 +1056,21 @@
             // Add event listeners to inputs to hide results on change
             [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
                 input.addEventListener('input', () => {
+                    clearFieldError(input);
+                    clearAppAlert();
                     resultCard.classList.remove('show');
                     actualExitCard.classList.remove('show');
                 });
             });
+            actualExitTimeInput.addEventListener('input', () => {
+                clearFieldError(actualExitTimeInput);
+                clearAppAlert();
+            });
              // Also reset on intermediate break input changes
              intermediateBreaksContainer.addEventListener('input', (event) => {
                  if (event.target.type === 'time') {
+                    clearFieldError(event.target);
+                    clearAppAlert();
                      resultCard.classList.remove('show');
                      actualExitCard.classList.remove('show');
                  }
