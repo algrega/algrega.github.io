@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker v9</title> <!-- Updated Version -->
+    <title>Time Tracker v10</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -12,13 +12,11 @@
             --primary-hue: 260; /* Purple */
             --secondary-hue: 210; /* Blue */
             --accent-hue: 300; /* Magenta/Pinkish */
-            --remote-hue: 180; /* Teal/Cyan for Remote indicator */
             --intermediate-hue: 35; /* Orange/Yellow for intermediate breaks */
 
             --primary-color: hsl(var(--primary-hue), 70%, 60%);
             --secondary-color: hsl(var(--secondary-hue), 80%, 55%);
             --accent-color: hsl(var(--accent-hue), 60%, 65%); /* Used for Part-Time */
-            --remote-color: hsl(var(--remote-hue), 60%, 55%);
             --intermediate-color: hsl(var(--intermediate-hue), 85%, 60%);
 
             --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
@@ -56,7 +54,6 @@
             --toggle-padding: 3px;
             --toggle-inactive-bg: hsl(var(--secondary-hue), 15%, 80%);
             --toggle-active-bg: var(--accent-color); /* Default active color (Part-Time) */
-            --toggle-remote-active-bg: var(--remote-color); /* Specific color for remote toggle */
             --toggle-thumb-color: white;
         }
 
@@ -64,13 +61,11 @@
             --primary-hue: 265;
             --secondary-hue: 215;
             --accent-hue: 305;
-            --remote-hue: 185;
             --intermediate-hue: 38;
 
             --primary-color: hsl(var(--primary-hue), 60%, 70%);
             --secondary-color: hsl(var(--secondary-hue), 70%, 65%);
             --accent-color: hsl(var(--accent-hue), 50%, 75%);
-            --remote-color: hsl(var(--remote-hue), 55%, 65%);
             --intermediate-color: hsl(var(--intermediate-hue), 80%, 65%);
 
             --text-color-light: hsl(var(--primary-hue), 15%, 15%);
@@ -93,7 +88,6 @@
             --danger-color: hsl(0, 65%, 65%);
             --toggle-inactive-bg: hsl(var(--secondary-hue), 10%, 40%);
             --toggle-active-bg: var(--accent-color);
-            --toggle-remote-active-bg: var(--remote-color);
         }
 
         /* --- Global Styles & Resets --- */
@@ -149,16 +143,6 @@
         .dark-theme #theme-toggle-btn .fa-moon { transform: rotate(360deg); }
         #theme-toggle-btn .fa-sun { transform: rotate(0deg); }
         .dark-theme #theme-toggle-btn .fa-sun { transform: rotate(360deg); }
-        .app-error {
-            margin-bottom: 16px;
-            padding: 10px 12px;
-            border: 1px solid color-mix(in srgb, var(--danger-color) 35%, transparent);
-            border-radius: var(--border-radius-md);
-            background-color: color-mix(in srgb, var(--danger-color) 12%, transparent);
-            color: var(--danger-color);
-            font-size: calc(var(--base-font-size) * 0.9);
-            font-weight: 500;
-        }
 
         /* --- Cards --- */
         .card {
@@ -172,20 +156,16 @@
         .dark-theme .card { border-color: var(--input-border); border-left-color: transparent; }
 
         /* --- Mode Active Indication --- */
-        /* Order matters: Remote border takes precedence if both are active */
         body.part-time-active #input-card { border-left-color: var(--accent-color); }
-        body.remote-work-active #input-card { border-left-color: var(--remote-color); }
 
-        /* Optional ::after indicators */
-        body.part-time-active #part-time-label::after,
-        body.remote-work-active #remote-work-label::after {
+        /* Optional ::after indicator */
+        body.part-time-active #part-time-label::after {
             content: "Attiva";
             font-size: 75%; font-weight: 600; padding: 2px 6px; margin-left: 8px;
             border-radius: var(--border-radius-sm); color: var(--text-color-light);
             vertical-align: middle;
         }
         body.part-time-active #part-time-label::after { background-color: var(--accent-color); }
-        body.remote-work-active #remote-work-label::after { background-color: var(--remote-color); }
 
         /* --- Form Elements --- */
         .form-group {
@@ -198,7 +178,6 @@
         #input-card .form-group:nth-child(3) { animation-delay: 0.26s; } /* Lunch End */
         #intermediate-breaks-section { animation-delay: 0.34s; opacity: 0; transform: translateX(-10px); animation: slideFadeIn 0.4s ease forwards; } /* Intermediate Breaks Section */
         #input-card .form-group:nth-child(5) { animation-delay: 0.42s; } /* Part-Time Toggle */
-        #input-card .form-group:nth-child(6) { animation-delay: 0.50s; } /* Remote Work Toggle (Hidden, but keeps timing) */
         #input-card > button#calculate-btn { animation-delay: 0.58s; } /* Calculate button */
 
         label {
@@ -296,9 +275,6 @@
         /* Part-Time Toggle Active Color */
         #part-time-toggle:checked + .toggle-slider { background-color: var(--accent-color); }
         #part-time-toggle:focus + .toggle-slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 30%, transparent); }
-        /* Remote Work Toggle Active Color */
-        #remote-work-toggle:checked + .toggle-slider { background-color: var(--remote-color); }
-        #remote-work-toggle:focus + .toggle-slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--remote-color) 30%, transparent); }
         /* Slider movement */
         input:checked + .toggle-slider::before { transform: translateX(calc(var(--toggle-width) - var(--toggle-height))); }
 
@@ -388,19 +364,9 @@
         .rules-section .intermediate-rule { color: var(--intermediate-color); }
         .rules-section .intermediate-rule strong { color: var(--intermediate-color); }
         .rules-section .intermediate-rule::before { color: var(--intermediate-color); }
-        .rules-section .remote-rule { color: var(--remote-color); } /* Style for remote rules */
-        .rules-section .remote-rule strong { color: var(--remote-color); }
-        .rules-section .remote-rule::before { color: var(--remote-color); }
         .rules-section .part-time-rule { color: var(--accent-color); } /* Style for part-time rules */
         .rules-section .part-time-rule strong { color: var(--accent-color); }
         .rules-section .part-time-rule::before { color: var(--accent-color); }
-        .rules-section .combined-rule { /* Style for combined mode */
-            color: color-mix(in srgb, var(--remote-color) 60%, var(--accent-color) 40%);
-            /* border-left: 3px solid color-mix(in srgb, var(--remote-color) 60%, var(--accent-color) 40%); */
-            /* padding-left: 22px; margin-left: -25px; /* Adjust padding/margin for border */
-        }
-        .rules-section .combined-rule::before { color: color-mix(in srgb, var(--remote-color) 60%, var(--accent-color) 40%); }
-
 
         /* --- Animations --- */
         @keyframes slideFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
@@ -428,35 +394,31 @@
             .intermediate-break-row { flex-direction: column; align-items: stretch; gap: 10px; padding: 15px; }
             .intermediate-break-row > div { width: 100%; }
             .remove-intermediate-break-btn { width: 100%; margin-top: 5px; padding: 10px; }
-            /* .rules-section .combined-rule { margin-left: -20px; padding-left: 17px; } /* Adjust for mobile */
         }
 
     </style>
 </head>
-<body class=""> <!-- Classes part-time-active / remote-work-active added by JS -->
+<body class=""> <!-- Class part-time-active added by JS -->
     <div class="container">
         <header>
             <h1><i class="fas fa-stopwatch-20"></i> Time Tracker</h1>
             <div class="header-controls">
-                <button id="rules-toggle-btn" class="icon-button" type="button" title="Mostra/Nascondi Regole" aria-label="Mostra o nascondi regole" aria-controls="rules-section" aria-expanded="false">
+                <button id="rules-toggle-btn" class="icon-button" type="button" title="Mostra Regole" aria-label="Mostra regole di calcolo" aria-controls="rules-section" aria-expanded="false">
                     <i class="fas fa-info-circle"></i>
                 </button>
-                <button id="theme-toggle-btn" class="icon-button" type="button" title="Cambia Tema" aria-label="Cambia tema" aria-pressed="false">
+                <button id="theme-toggle-btn" class="icon-button" type="button" title="Cambia Tema" aria-label="Passa a tema scuro">
                     <i class="fas fa-moon"></i>
                 </button>
             </div>
         </header>
-        <div id="app-error" class="app-error" role="alert" aria-live="assertive" hidden></div>
 
-        <section class="rules-section card" id="rules-section">
+        <section class="rules-section card" id="rules-section" aria-hidden="true">
             <h2><i class="fas fa-book-open"></i> Regole di Calcolo</h2>
             <ul>
                 <li>L'orario di ingresso non può essere precedente alle <strong>08:00</strong>.</li>
-                <li>Seleziona la modalità operativa: puoi attivare <strong>Part-Time</strong> (6h). Se nessuna è attiva, si applica il Full-Time standard (7h 12m).</li>
+                <li>Seleziona la modalità operativa: puoi attivare <strong>Part-Time</strong> (6h). Se non è attiva, si applica il Full-Time standard (7h 12m).</li>
                 <li class="part-time-rule">In <strong>Part-Time</strong>, la giornata lavorativa standard diventa di <strong>6 ore</strong> (<code>6h 00m</code>).</li>
-                <li class="remote-rule" hidden>In <strong>Lavoro da Remoto</strong>, la giornata lavorativa standard è <strong>7 ore e 12 minuti</strong> (<code>7h 12m</code>), ma si applicano regole specifiche per pausa/bonus/buono.</li>
-                <li class="combined-rule" hidden>Se <strong>entrambe</strong> le modalità (Part-Time e Remoto) sono attive, la giornata lavorativa è di <strong>6 ore</strong> (<code>6h 00m</code>) e si applicano le regole del <strong>Lavoro da Remoto</strong> per pausa pranzo, bonus e buono pasto.</li>
-                <li class="intermediate-rule"><strong>Pause Intermedie:</strong> Puoi aggiungere uscite/rientri intermedi. La loro durata totale viene aggiunta all'orario di uscita previsto e sottratta dalle ore lavorate effettive.</li>
+                <li class="intermediate-rule"><strong>Pause Intermedie:</strong> Puoi aggiungere uscite/rientri intermedi. Le pause devono ricadere nella sessione lavorativa pianificata e non possono sovrapporsi.</li>
                 <li><strong>Pausa Pranzo (Standard/Part-Time):</strong> Se inserisci orari di pausa pranzo:
                     <ul>
                         <li>Durata minima calcolata per l'uscita: <strong>30 minuti</strong>.</li>
@@ -464,15 +426,8 @@
                         <li>Buono pasto: Considerato valido se la pausa viene effettuata.</li>
                     </ul>
                  </li>
-                 <li class="remote-rule" hidden><strong>Pausa Pranzo (Lavoro da Remoto, anche se Part-Time):</strong> Se inserisci orari di pausa pranzo:
-                    <ul>
-                        <li>Durata minima calcolata per l'uscita: <strong>30 minuti</strong>.</li>
-                        <li><strong>Nessun Bonus</strong> applicato, indipendentemente dalla durata.</li>
-                        <li>Buono pasto: Valido solo se la durata <strong>effettiva</strong> della pausa è >= <strong>30 minuti</strong>.</li>
-                    </ul>
-                </li>
                 <li>Se non inserisci gli orari di pausa pranzo, non viene applicata nessuna pausa, bonus o buono pasto.</li>
-                <li><strong>Orario di Uscita Previsto:</strong> <code>Ingresso + Durata Standard (in base a Part-Time) + Durata Pausa Pranzo Calcolata (min 30m) + Durata Totale Pause Intermedie - Bonus Pausa Pranzo (max 10m)</code>.</li>
+                <li><strong>Orario di Uscita Previsto:</strong> <code>Ingresso + Durata Standard (in base a Part-Time) + Durata Pausa Pranzo Calcolata (min 30m) + Durata Totale Pause Intermedie - Bonus Pausa Pranzo (max 10m)</code>. L'uscita non viene mai anticipata prima della fine delle pause inserite.</li>
                 <li><strong>Totale Ore Lavorate:</strong> <code>Uscita Effettiva - Ingresso - Durata Pausa Pranzo Effettiva (durante orario lavoro) - Durata Totale Pause Intermedie (durante orario lavoro) + Bonus Pausa Pranzo</code>.</li>
                 <li>La <strong>Differenza dal previsto</strong> confronta le ore lavorate con la durata standard della modalità selezionata (<code>6h 00m</code> se Part-Time, <code>7h 12m</code> altrimenti).</li>
             </ul>
@@ -510,20 +465,10 @@
                      </div>
                  </label>
             </div>
-            <!-- MODIFICA: Aggiunto attributo 'hidden' per nascondere l'opzione Lavoro da Remoto -->
-            <div class="form-group" hidden>
-                 <label class="toggle-switch-label" for="remote-work-toggle">
-                     <span id="remote-work-label">Lavoro da Remoto</span>
-                     <div class="toggle-switch">
-                         <input type="checkbox" id="remote-work-toggle">
-                         <span class="toggle-slider"></span> <!-- Uses --remote-color when checked -->
-                     </div>
-                 </label>
-            </div>
             <button id="calculate-btn" class="main-action" type="button"><i class="fas fa-calculator"></i>Calcola Orario di Uscita</button>
         </div>
 
-        <div class="card result-card" id="result-card">
+        <div class="card result-card" id="result-card" aria-live="polite">
             <div class="result-item">
                 <span class="result-label"><i class="fas fa-clock"></i>Durata pausa pranzo (effettiva):</span>
                 <span class="result-value info" id="lunch-duration">--:--</span>
@@ -550,7 +495,7 @@
             <button id="calculate-hours-btn" class="main-action" type="button"><i class="fas fa-hourglass-half"></i>Calcola Ore Lavorate</button>
         </div>
 
-        <div class="card actual-exit-card" id="actual-exit-card">
+        <div class="card actual-exit-card" id="actual-exit-card" aria-live="polite">
             <div class="result-item">
                 <span class="result-label"><i class="fas fa-briefcase"></i>Totale ore lavorate:</span>
                 <span class="result-value" id="total-hours">--:--</span>
@@ -564,34 +509,33 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // --- UI Elements ---
+            const DAY_MINUTES = 24 * 60;
+            const FULL_TIME_WORKDAY_MINUTES = 7 * 60 + 12;
+            const PART_TIME_WORKDAY_MINUTES = 6 * 60;
+            const MIN_LUNCH_BREAK_MINUTES = 30;
+            const MAX_LUNCH_BONUS_MINUTES = 10;
+            const MIN_ENTRY_TIME_MINUTES = 8 * 60;
+
             const themeToggleButton = document.getElementById("theme-toggle-btn");
-            const themeButtonIcon = themeToggleButton.querySelector('.fas');
+            const themeButtonIcon = themeToggleButton.querySelector(".fas");
             const rulesToggleButton = document.getElementById("rules-toggle-btn");
             const rulesSection = document.getElementById("rules-section");
-            const appErrorEl = document.getElementById("app-error");
-            const partTimeToggle = document.getElementById('part-time-toggle');
-            const remoteWorkToggle = document.getElementById('remote-work-toggle');
-            const targetHoursLabel = document.getElementById('target-hours-label');
-
+            const partTimeToggle = document.getElementById("part-time-toggle");
+            const targetHoursLabel = document.getElementById("target-hours-label");
             const calculateBtn = document.getElementById("calculate-btn");
             const calculateHoursBtn = document.getElementById("calculate-hours-btn");
             const resultCard = document.getElementById("result-card");
             const actualExitCard = document.getElementById("actual-exit-card");
-            const inputCard = document.getElementById("input-card");
 
-            // --- Inputs ---
             const entryTimeInput = document.getElementById("entry-time");
             const lunchStartInput = document.getElementById("lunch-start");
             const lunchEndInput = document.getElementById("lunch-end");
             const actualExitTimeInput = document.getElementById("actual-exit-time");
 
-            // --- Intermediate Breaks Elements ---
-            const intermediateBreaksContainer = document.getElementById('intermediate-breaks-container');
-            const addIntermediateBreakBtn = document.getElementById('add-intermediate-break-btn');
+            const intermediateBreaksContainer = document.getElementById("intermediate-breaks-container");
+            const addIntermediateBreakBtn = document.getElementById("add-intermediate-break-btn");
             let intermediateBreakCounter = 0;
 
-            // --- Outputs ---
             const lunchDurationEl = document.getElementById("lunch-duration");
             const lunchBonusEl = document.getElementById("lunch-bonus");
             const exitTimeEl = document.getElementById("exit-time");
@@ -599,483 +543,469 @@
             const totalHoursEl = document.getElementById("total-hours");
             const hoursDifferenceEl = document.getElementById("hours-difference");
 
-            // --- Constants ---
-            const FULL_TIME_WORKDAY_MINUTES = 7 * 60 + 12; // 432 minutes
-            const PART_TIME_WORKDAY_MINUTES = 6 * 60;      // 360 minutes
-            const MIN_LUNCH_BREAK_MINUTES = 30;
-            const MAX_LUNCH_BONUS_MINUTES = 10;
-            const MIN_ENTRY_TIME_MINUTES = 8 * 60; // 08:00 in minutes
+            function getStoredTheme() {
+                try {
+                    return localStorage.getItem("darkTheme") === "true";
+                } catch (error) {
+                    return false;
+                }
+            }
 
-            // --- Theme Handling ---
+            function setStoredTheme(isDark) {
+                try {
+                    localStorage.setItem("darkTheme", isDark ? "true" : "false");
+                } catch (error) {
+                    // localStorage can be unavailable in restricted browser contexts.
+                }
+            }
+
             function setTheme(isDark) {
                 document.body.classList.toggle("dark-theme", isDark);
-                themeButtonIcon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`;
+                themeButtonIcon.className = `fas ${isDark ? "fa-sun" : "fa-moon"}`;
                 themeToggleButton.title = isDark ? "Passa a Tema Chiaro" : "Passa a Tema Scuro";
-                themeToggleButton.setAttribute("aria-pressed", isDark ? "true" : "false");
-                localStorage.setItem("darkTheme", isDark ? "true" : "false");
+                themeToggleButton.setAttribute("aria-label", isDark ? "Passa a tema chiaro" : "Passa a tema scuro");
+                setStoredTheme(isDark);
             }
-            const savedTheme = localStorage.getItem("darkTheme") === "true";
-            setTheme(savedTheme);
-            themeToggleButton.addEventListener("click", () => {
-                setTheme(!document.body.classList.contains("dark-theme"));
-            });
 
-            // --- Rules Section Toggle ---
-             rulesToggleButton.addEventListener("click", () => {
-                 const isShown = rulesSection.classList.toggle("show");
-                 rulesToggleButton.title = isShown ? "Nascondi Regole" : "Mostra Regole";
-                 rulesToggleButton.setAttribute("aria-expanded", isShown ? "true" : "false");
-                 rulesToggleButton.querySelector('.fas').className = `fas ${isShown ? 'fa-times-circle' : 'fa-info-circle'}`;
-             });
-
-            // --- Utility Functions ---
             function timeToMinutes(timeStr) {
-                if (!timeStr) return null;
+                if (!timeStr || !/^\d{2}:\d{2}$/.test(timeStr)) return null;
                 const [hours, minutes] = timeStr.split(":").map(Number);
-                if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-                    return null;
-                }
+                if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
                 return hours * 60 + minutes;
             }
 
-            function minutesToTimeString(totalMinutes) {
-                if (totalMinutes === null || typeof totalMinutes === 'undefined' || isNaN(totalMinutes)) return "--:--";
-                const isNegative = totalMinutes < 0;
-                const absMinutes = Math.abs(totalMinutes);
-                let hours = Math.floor(absMinutes / 60);
-                let minutes = Math.round(absMinutes % 60);
-                 if (minutes === 60) {
-                     hours += 1;
-                     minutes = 0;
-                 }
-                const sign = isNegative ? "-" : "";
-                const hoursPadding = (sign === "" || hours !== 0) ? 2 : 1;
-                return `${sign}${String(hours).padStart(hoursPadding, "0")}:${String(minutes).padStart(2, "0")}`;
+            function formatDuration(totalMinutes) {
+                if (totalMinutes === null || typeof totalMinutes === "undefined" || isNaN(totalMinutes)) return "--:--";
+                const roundedMinutes = Math.round(totalMinutes);
+                const isNegative = roundedMinutes < 0;
+                const absMinutes = Math.abs(roundedMinutes);
+                const hours = Math.floor(absMinutes / 60);
+                const minutes = absMinutes % 60;
+                return `${isNegative ? "-" : ""}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+            }
+
+            function formatClockTime(totalMinutes) {
+                if (totalMinutes === null || typeof totalMinutes === "undefined" || isNaN(totalMinutes)) return "--:--";
+                const minutesInDay = ((Math.round(totalMinutes) % DAY_MINUTES) + DAY_MINUTES) % DAY_MINUTES;
+                const hours = Math.floor(minutesInDay / 60);
+                const minutes = minutesInDay % 60;
+                return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+            }
+
+            function getTargetWorkMinutes() {
+                return partTimeToggle.checked ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
+            }
+
+            function getTargetLabel() {
+                const label = formatDuration(getTargetWorkMinutes());
+                return partTimeToggle.checked ? `${label} (Part-Time)` : label;
             }
 
             function displayCard(cardElement) {
-                 requestAnimationFrame(() => { cardElement.classList.add('show'); });
+                requestAnimationFrame(() => {
+                    cardElement.classList.add("show");
+                });
             }
 
             function pulseElement(element) {
                 if (!element) return;
-                element.classList.remove('updated');
+                element.classList.remove("updated");
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                         element.classList.add('updated');
-                         element.addEventListener('animationend', () => {
-                             element.classList.remove('updated');
-                         }, { once: true });
+                        element.classList.add("updated");
+                        element.addEventListener("animationend", () => {
+                            element.classList.remove("updated");
+                        }, { once: true });
                     });
                 });
             }
 
-            function clearAppAlert() {
-                appErrorEl.textContent = "";
-                appErrorEl.hidden = true;
+            function showAppAlert(message) {
+                alert(message);
             }
 
-            function showAppAlert(message, field) {
-                appErrorEl.textContent = message;
-                appErrorEl.hidden = false;
-                if (field) field.setAttribute("aria-invalid", "true");
+            function uppercaseFirst(text) {
+                return text.charAt(0).toUpperCase() + text.slice(1);
             }
 
-            function clearFieldError(field) {
-                if (field) field.removeAttribute("aria-invalid");
+            function hideAllResults() {
+                resultCard.classList.remove("show");
+                actualExitCard.classList.remove("show");
             }
 
-            function formatTargetHoursLabel(targetMinutes, isPartTime, isRemoteWork) {
-                const base = minutesToTimeString(targetMinutes);
-                if (isRemoteWork && isPartTime) return `${base} (Remoto + Part-Time)`;
-                if (isRemoteWork) return `${base} (Remoto)`;
-                if (isPartTime) return `${base} (Part-Time)`;
-                return base;
+            function resetActualResults() {
+                actualExitCard.classList.remove("show");
+                totalHoursEl.textContent = "--:--";
+                hoursDifferenceEl.textContent = "--:--";
+                totalHoursEl.className = "result-value";
+                hoursDifferenceEl.className = "result-value";
             }
 
-             // --- Mode Toggles Handling (Part-Time & Remote - Can be combined) ---
-             function updateModeState() {
-                 const isPartTime = partTimeToggle.checked;
-                 const isRemoteWork = remoteWorkToggle.checked;
+            function normalizeClockAfterEntry(minutes, entryMinutes) {
+                return minutes < entryMinutes ? minutes + DAY_MINUTES : minutes;
+            }
 
-                 // --- REMOVED MUTUAL EXCLUSION ---
-                 // No longer need to uncheck the other toggle.
+            function createBreakInterval(label, startMinutes, endMinutes, startInput, endInput, entryMinutes) {
+                const hasStart = startMinutes !== null;
+                const hasEnd = endMinutes !== null;
 
-                 document.body.classList.toggle('part-time-active', isPartTime);
-                 document.body.classList.toggle('remote-work-active', isRemoteWork);
+                if (!hasStart && !hasEnd) {
+                    return { success: true, interval: null };
+                }
 
-                 const baseMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
-                 targetHoursLabel.textContent = formatTargetHoursLabel(baseMinutes, isPartTime, isRemoteWork);
+                if (!hasStart || !hasEnd) {
+                    showAppAlert(`Inserisci sia l'uscita che il rientro per ${label}, o lascia entrambi vuoti.`);
+                    (hasStart ? endInput : startInput).focus();
+                    return { success: false };
+                }
 
-                 // Reset results when mode changes
-                 resultCard.classList.remove('show');
-                 actualExitCard.classList.remove('show');
-             }
+                const normalizedStart = normalizeClockAfterEntry(startMinutes, entryMinutes);
+                let normalizedEnd = normalizeClockAfterEntry(endMinutes, entryMinutes);
+                if (normalizedEnd <= normalizedStart) {
+                    normalizedEnd += DAY_MINUTES;
+                }
 
-             partTimeToggle.addEventListener('change', updateModeState);
-             remoteWorkToggle.addEventListener('change', updateModeState);
-             updateModeState(); // Initialize on load
+                const duration = normalizedEnd - normalizedStart;
+                if (duration <= 0 || duration >= DAY_MINUTES) {
+                    showAppAlert(`${uppercaseFirst(label)} ha una durata non valida.`);
+                    endInput.focus();
+                    return { success: false };
+                }
 
-             // --- Intermediate Break Handling ---
-             function addIntermediateBreakRow() {
-                 intermediateBreakCounter++;
-                 const rowId = `intermediate-break-${intermediateBreakCounter}`;
-                 const startId = `intermediate-start-${intermediateBreakCounter}`;
-                 const endId = `intermediate-end-${intermediateBreakCounter}`;
+                return {
+                    success: true,
+                    interval: {
+                        label,
+                        startInput,
+                        endInput,
+                        startMinutes,
+                        endMinutes,
+                        normalizedStart,
+                        normalizedEnd,
+                        duration,
+                        scheduledDuration: duration
+                    }
+                };
+            }
 
-                 const row = document.createElement('div');
-                 row.classList.add('intermediate-break-row');
-                 row.id = rowId;
-                 row.innerHTML = `
-                     <div>
-                         <label for="${startId}"><i class="fas fa-door-closed"></i>Uscita Intermedia:</label>
-                         <input type="time" id="${startId}" class="intermediate-start-input">
-                     </div>
-                     <div>
-                         <label for="${endId}"><i class="fas fa-door-open"></i>Rientro Intermedio:</label>
-                         <input type="time" id="${endId}" class="intermediate-end-input">
-                     </div>
-                     <button type="button" class="remove-intermediate-break-btn" title="Rimuovi questa pausa" data-row-id="${rowId}">
-                         <i class="fas fa-trash-alt"></i>
-                     </button>
-                 `;
-                 intermediateBreaksContainer.appendChild(row);
-                 row.querySelector(`#${startId}`).focus();
-             }
+            function collectBreakIntervals(entryMinutes, lunchStartMinutes, lunchEndMinutes) {
+                const intervals = [];
 
-             addIntermediateBreakBtn.addEventListener('click', addIntermediateBreakRow);
+                const lunchResult = createBreakInterval(
+                    "la pausa pranzo",
+                    lunchStartMinutes,
+                    lunchEndMinutes,
+                    lunchStartInput,
+                    lunchEndInput,
+                    entryMinutes
+                );
+                if (!lunchResult.success) return { success: false };
 
-             intermediateBreaksContainer.addEventListener('click', function(event) {
-                 const removeButton = event.target.closest('.remove-intermediate-break-btn');
-                 if (removeButton) {
-                     const rowIdToRemove = removeButton.dataset.rowId;
-                     const rowToRemove = document.getElementById(rowIdToRemove);
-                     if (rowToRemove) {
-                         rowToRemove.remove();
-                         // Optionally trigger recalculation here if results are visible
-                         if (resultCard.classList.contains('show')) {
-                             calculateBtn.click(); // Simulate click to recalculate predicted exit
-                             if (actualExitCard.classList.contains('show') && actualExitTimeInput.value) {
-                                 calculateHoursBtn.click(); // Simulate click to recalculate actual hours
-                             }
-                         }
-                     }
-                 }
-             });
+                const lunchInterval = lunchResult.interval;
+                if (lunchInterval) {
+                    lunchInterval.scheduledDuration = Math.max(lunchInterval.duration, MIN_LUNCH_BREAK_MINUTES);
+                    intervals.push(lunchInterval);
+                }
 
+                const intermediateBreakRows = intermediateBreaksContainer.querySelectorAll(".intermediate-break-row");
+                for (let i = 0; i < intermediateBreakRows.length; i++) {
+                    const row = intermediateBreakRows[i];
+                    const startInput = row.querySelector(".intermediate-start-input");
+                    const endInput = row.querySelector(".intermediate-end-input");
+                    const startMinutes = timeToMinutes(startInput.value);
+                    const endMinutes = timeToMinutes(endInput.value);
+                    const breakResult = createBreakInterval(
+                        `la pausa intermedia #${i + 1}`,
+                        startMinutes,
+                        endMinutes,
+                        startInput,
+                        endInput,
+                        entryMinutes
+                    );
 
-            // --- Unified Calculation Logic ---
+                    if (!breakResult.success) return { success: false };
+                    if (breakResult.interval) intervals.push(breakResult.interval);
+                }
+
+                return { success: true, intervals, lunchInterval };
+            }
+
+            function validateBreakTimeline(intervals, entryMinutes, targetWorkMinutes, lunchBonusMinutes) {
+                const sortedIntervals = [...intervals].sort((a, b) => a.normalizedStart - b.normalizedStart);
+
+                for (let i = 1; i < sortedIntervals.length; i++) {
+                    const previous = sortedIntervals[i - 1];
+                    const current = sortedIntervals[i];
+                    if (current.normalizedStart < previous.normalizedEnd) {
+                        showAppAlert(`${uppercaseFirst(current.label)} si sovrappone con ${previous.label}.`);
+                        current.startInput.focus();
+                        return { success: false };
+                    }
+                }
+
+                let scheduledExitBeforeBonus = entryMinutes + targetWorkMinutes;
+                for (const interval of sortedIntervals) {
+                    if (interval.normalizedStart >= scheduledExitBeforeBonus) {
+                        showAppAlert(`${uppercaseFirst(interval.label)} inizia fuori dalla giornata lavorativa pianificata.`);
+                        interval.startInput.focus();
+                        return { success: false };
+                    }
+                    scheduledExitBeforeBonus += interval.scheduledDuration;
+                }
+
+                const latestBreakEnd = sortedIntervals.reduce((latest, interval) => {
+                    return Math.max(latest, interval.normalizedEnd);
+                }, entryMinutes);
+                const exitTimeTotalMinutes = Math.max(scheduledExitBeforeBonus - lunchBonusMinutes, latestBreakEnd);
+
+                return { success: true, sortedIntervals, exitTimeTotalMinutes };
+            }
+
+            function getBreakMinutesDuringWork(intervals, entryMinutes, normalizedActualExit) {
+                return intervals.reduce((total, interval) => {
+                    const breakStart = Math.max(entryMinutes, interval.normalizedStart);
+                    const breakEnd = Math.min(normalizedActualExit, interval.normalizedEnd);
+                    return breakEnd > breakStart ? total + (breakEnd - breakStart) : total;
+                }, 0);
+            }
+
+            function renderPredictionResults(res) {
+                lunchDurationEl.textContent = res.hasLunch ? formatDuration(res.actualLunchDuration) : "Nessuna";
+
+                if (res.hasLunch) {
+                    mealVoucherEl.textContent = res.mealVoucherEarned ? "Sì" : "No";
+                    mealVoucherEl.className = `result-value ${res.mealVoucherEarned ? "success" : "warning"}`;
+                } else {
+                    mealVoucherEl.textContent = "N/D";
+                    mealVoucherEl.className = "result-value";
+                }
+
+                lunchBonusEl.textContent = res.lunchBonusMinutes > 0 ? `${res.lunchBonusMinutes} min` : "Nessuno";
+                exitTimeEl.textContent = formatClockTime(res.exitTimeTotalMinutes);
+
+                [lunchDurationEl, mealVoucherEl, lunchBonusEl, exitTimeEl].forEach(pulseElement);
+                displayCard(resultCard);
+            }
+
+            function renderActualResults(res) {
+                if (!res.hasActualExit || res.totalWorkMinutes === null || res.differenceMinutes === null) {
+                    showAppAlert("Errore nel calcolo delle ore lavorate. Verifica gli orari inseriti.");
+                    resetActualResults();
+                    return;
+                }
+
+                totalHoursEl.textContent = formatDuration(res.totalWorkMinutes);
+                hoursDifferenceEl.textContent = `${res.differenceMinutes >= 0 ? "+" : ""}${formatDuration(res.differenceMinutes)}`;
+
+                totalHoursEl.className = "result-value";
+                hoursDifferenceEl.className = "result-value";
+                if (res.differenceMinutes < 0) {
+                    hoursDifferenceEl.classList.add("warning");
+                } else if (res.differenceMinutes > 5) {
+                    hoursDifferenceEl.classList.add("success");
+                } else {
+                    hoursDifferenceEl.classList.add("info");
+                }
+
+                targetHoursLabel.textContent = getTargetLabel();
+                [totalHoursEl, hoursDifferenceEl].forEach(pulseElement);
+                displayCard(actualExitCard);
+            }
+
+            function updateModeState() {
+                document.body.classList.toggle("part-time-active", partTimeToggle.checked);
+                targetHoursLabel.textContent = getTargetLabel();
+                hideAllResults();
+            }
+
             function calculateTimes() {
                 const entryMinutes = timeToMinutes(entryTimeInput.value);
                 const lunchStartMinutes = timeToMinutes(lunchStartInput.value);
                 const lunchEndMinutes = timeToMinutes(lunchEndInput.value);
                 const actualExitMinutes = timeToMinutes(actualExitTimeInput.value);
 
-                const isPartTime = partTimeToggle.checked;
-                const isRemoteWork = remoteWorkToggle.checked;
-
-                [entryTimeInput, lunchStartInput, lunchEndInput, actualExitTimeInput].forEach(clearFieldError);
-                intermediateBreaksContainer
-                    .querySelectorAll('.intermediate-start-input, .intermediate-end-input')
-                    .forEach(clearFieldError);
-
-                // --- Input Validation ---
                 if (entryMinutes === null) {
-                    showAppAlert("Per favore, inserisci un orario di ingresso valido.", entryTimeInput);
+                    showAppAlert("Per favore, inserisci un orario di ingresso valido.");
                     entryTimeInput.focus();
                     return { success: false };
                 }
 
-                // Check if entry time is before 08:00
                 if (entryMinutes < MIN_ENTRY_TIME_MINUTES) {
-                    showAppAlert("L'orario di ingresso non può essere precedente alle 08:00.", entryTimeInput);
+                    showAppAlert("L'orario di ingresso non può essere precedente alle 08:00.");
                     entryTimeInput.focus();
                     return { success: false };
                 }
 
+                const targetWorkMinutes = getTargetWorkMinutes();
+                const breaksResult = collectBreakIntervals(entryMinutes, lunchStartMinutes, lunchEndMinutes);
+                if (!breaksResult.success) return { success: false };
 
-                // --- Determine Target Work Minutes (Part-Time takes precedence) ---
-                const targetWorkMinutes = isPartTime ? PART_TIME_WORKDAY_MINUTES : FULL_TIME_WORKDAY_MINUTES;
+                const lunchInterval = breaksResult.lunchInterval;
+                const actualLunchDuration = lunchInterval ? lunchInterval.duration : 0;
+                const lunchBonusMinutes = lunchInterval
+                    ? Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES)
+                    : 0;
 
-                const hasLunchStart = lunchStartMinutes !== null;
-                const hasLunchEnd = lunchEndMinutes !== null;
-                let correctedLunchEndMinutes = lunchEndMinutes;
+                const timelineResult = validateBreakTimeline(
+                    breaksResult.intervals,
+                    entryMinutes,
+                    targetWorkMinutes,
+                    lunchBonusMinutes
+                );
+                if (!timelineResult.success) return { success: false };
 
-                if (hasLunchStart && hasLunchEnd) {
-                    if (lunchEndMinutes <= lunchStartMinutes) {
-                        correctedLunchEndMinutes += (24 * 60);
-                    }
-                    if (correctedLunchEndMinutes <= lunchStartMinutes) {
-                        showAppAlert("L'orario di rientro dalla pausa pranzo non è valido.", lunchEndInput);
-                        lunchEndInput.focus();
-                        return { success: false };
-                    }
-                } else if (hasLunchStart || hasLunchEnd) {
-                    showAppAlert(
-                        "Inserisci sia l'uscita che il rientro per la pausa pranzo, o lasciali entrambi vuoti.",
-                        hasLunchStart ? lunchEndInput : lunchStartInput
-                    );
-                    if (hasLunchStart) lunchEndInput.focus(); else lunchStartInput.focus();
-                    return { success: false };
-                }
-
-                // --- Intermediate Break Calculation & Validation ---
-                let totalIntermediateBreakMinutes = 0;
-                const intermediateBreaksData = [];
-                const intermediateBreakRows = intermediateBreaksContainer.querySelectorAll('.intermediate-break-row');
-                let intermediateValidationFailed = false;
-
-                for (let i = 0; i < intermediateBreakRows.length; i++) {
-                    const row = intermediateBreakRows[i];
-                    const startInput = row.querySelector('.intermediate-start-input');
-                    const endInput = row.querySelector('.intermediate-end-input');
-                    const startMins = timeToMinutes(startInput.value);
-                    const endMins = timeToMinutes(endInput.value);
-
-                    if (startMins !== null && endMins !== null) {
-                        let correctedEndMins = endMins;
-                        if (endMins <= startMins) {
-                            correctedEndMins += (24 * 60);
-                        }
-                        if (correctedEndMins <= startMins) {
-                            showAppAlert(`Orario di rientro non valido per la pausa intermedia #${i + 1}.`, endInput);
-                            endInput.focus();
-                            intermediateValidationFailed = true;
-                            break;
-                        }
-                        const duration = correctedEndMins - startMins;
-                        totalIntermediateBreakMinutes += duration;
-                        intermediateBreaksData.push({ start: startMins, end: endMins, correctedEnd: correctedEndMins, duration: duration });
-                    } else if (startMins !== null || endMins !== null) {
-                        showAppAlert(
-                            `Inserisci sia l'uscita che il rientro per la pausa intermedia #${i + 1}, o lasciala vuota.`,
-                            startMins === null ? startInput : endInput
-                        );
-                        if (startMins === null) startInput.focus(); else endInput.focus();
-                        intermediateValidationFailed = true;
-                        break;
-                    }
-                }
-
-                if (intermediateValidationFailed) {
-                    return { success: false };
-                }
-
-                // --- Lunch Break Calculations (Rules depend on isRemoteWork) ---
-                let actualLunchDuration = 0;
-                let effectiveLunchMinutes = 0; // Min 30 rule for exit time
-                let lunchBonusMinutes = 0;
-                let mealVoucherEarned = false;
-
-                if (hasLunchStart && hasLunchEnd) {
-                    actualLunchDuration = correctedLunchEndMinutes - lunchStartMinutes;
-                    effectiveLunchMinutes = Math.max(actualLunchDuration, MIN_LUNCH_BREAK_MINUTES);
-
-                    // Bonus only applies if NOT remote
-                    if (!isRemoteWork) {
-                        lunchBonusMinutes = Math.min(Math.max(0, actualLunchDuration - MIN_LUNCH_BREAK_MINUTES), MAX_LUNCH_BONUS_MINUTES);
-                    }
-
-                    // Meal voucher logic (depends on remote status)
-                    mealVoucherEarned = isRemoteWork ? (actualLunchDuration >= MIN_LUNCH_BREAK_MINUTES) : true;
-                }
-
-                // --- Predicted Exit Time ---
-                const exitTimeTotalMinutes = entryMinutes + targetWorkMinutes + effectiveLunchMinutes + totalIntermediateBreakMinutes - lunchBonusMinutes;
-
-                // --- Actual Hours Calculation ---
                 let totalWorkMinutes = null;
                 let differenceMinutes = null;
 
                 if (actualExitMinutes !== null) {
-                    let grossWorkDurationMinutes = actualExitMinutes - entryMinutes;
-                    let normalizedActualExit = actualExitMinutes;
+                    const normalizedActualExit = normalizeClockAfterEntry(actualExitMinutes, entryMinutes);
+                    const grossWorkDurationMinutes = normalizedActualExit - entryMinutes;
+                    const breakMinutesDuringWork = getBreakMinutesDuringWork(
+                        timelineResult.sortedIntervals,
+                        entryMinutes,
+                        normalizedActualExit
+                    );
 
-                    if (actualExitMinutes < entryMinutes) {
-                        grossWorkDurationMinutes += 24 * 60;
-                        normalizedActualExit += 24 * 60;
-                    }
-
-                    let actualLunchBreakDuringWork = 0;
-                    if (hasLunchStart && hasLunchEnd) {
-                        let normLunchStart = lunchStartMinutes < entryMinutes ? lunchStartMinutes + 24*60 : lunchStartMinutes;
-                        let normLunchEnd = correctedLunchEndMinutes < entryMinutes ? correctedLunchEndMinutes + 24*60 : correctedLunchEndMinutes;
-                        if (normLunchEnd <= normLunchStart) normLunchEnd += 24*60;
-                        const breakStartInWork = Math.max(entryMinutes, normLunchStart);
-                        const breakEndInWork = Math.min(normalizedActualExit, normLunchEnd);
-                        if (breakEndInWork > breakStartInWork) {
-                            actualLunchBreakDuringWork = breakEndInWork - breakStartInWork;
-                        }
-                    }
-
-                    let totalActualIntermediateBreakDuringWork = 0;
-                     intermediateBreaksData.forEach(breakData => {
-                         let normIntermedStart = breakData.start < entryMinutes ? breakData.start + 24*60 : breakData.start;
-                         let normIntermedEnd = breakData.correctedEnd < entryMinutes ? breakData.correctedEnd + 24*60 : breakData.correctedEnd;
-                         if (normIntermedEnd <= normIntermedStart) normIntermedEnd += 24*60;
-                         const breakStartInWork = Math.max(entryMinutes, normIntermedStart);
-                         const breakEndInWork = Math.min(normalizedActualExit, normIntermedEnd);
-                         if (breakEndInWork > breakStartInWork) {
-                            totalActualIntermediateBreakDuringWork += (breakEndInWork - breakStartInWork);
-                         }
-                     });
-
-                    // Total Work = Gross Duration - Actual Lunch during work - Actual Intermediate breaks during work + Lunch Bonus (only if not remote)
-                    totalWorkMinutes = grossWorkDurationMinutes - actualLunchBreakDuringWork - totalActualIntermediateBreakDuringWork + lunchBonusMinutes; // Note: Bonus logic already checks !isRemoteWork
+                    totalWorkMinutes = grossWorkDurationMinutes - breakMinutesDuringWork + lunchBonusMinutes;
                     differenceMinutes = totalWorkMinutes - targetWorkMinutes;
                 }
 
-                // --- Return Results ---
                 return {
                     success: true,
                     results: {
-                        actualLunchDuration: actualLunchDuration,
-                        mealVoucherEarned: mealVoucherEarned,
-                        lunchBonusMinutes: lunchBonusMinutes,
-                        exitTimeTotalMinutes: exitTimeTotalMinutes,
-                        totalWorkMinutes: totalWorkMinutes,
-                        differenceMinutes: differenceMinutes,
-                        hasLunch: hasLunchStart && hasLunchEnd,
+                        actualLunchDuration,
+                        mealVoucherEarned: Boolean(lunchInterval),
+                        lunchBonusMinutes,
+                        exitTimeTotalMinutes: timelineResult.exitTimeTotalMinutes,
+                        totalWorkMinutes,
+                        differenceMinutes,
+                        hasLunch: Boolean(lunchInterval),
                         hasActualExit: actualExitMinutes !== null,
-                        targetWorkMinutes: targetWorkMinutes,
-                        totalIntermediateBreakMinutes: totalIntermediateBreakMinutes,
-                        isRemoteWork: isRemoteWork, // Pass this for displaying info
-                        isPartTime: isPartTime   // Pass this for displaying info
+                        targetWorkMinutes,
+                        totalIntermediateBreakMinutes: timelineResult.sortedIntervals
+                            .filter(interval => interval.label.startsWith("la pausa intermedia"))
+                            .reduce((total, interval) => total + interval.duration, 0),
+                        isPartTime: partTimeToggle.checked
                     }
                 };
             }
 
+            function recalculateVisibleResults() {
+                const shouldShowPrediction = resultCard.classList.contains("show");
+                const shouldShowActual = actualExitCard.classList.contains("show") && actualExitTimeInput.value;
+                if (!shouldShowPrediction && !shouldShowActual) return;
 
-            // --- Button Event Listeners ---
+                const calculation = calculateTimes();
+                if (!calculation.success) {
+                    hideAllResults();
+                    return;
+                }
+
+                renderPredictionResults(calculation.results);
+                if (shouldShowActual) {
+                    renderActualResults(calculation.results);
+                } else {
+                    resetActualResults();
+                }
+            }
+
+            function addIntermediateBreakRow() {
+                intermediateBreakCounter++;
+                const rowId = `intermediate-break-${intermediateBreakCounter}`;
+                const startId = `intermediate-start-${intermediateBreakCounter}`;
+                const endId = `intermediate-end-${intermediateBreakCounter}`;
+
+                const row = document.createElement("div");
+                row.classList.add("intermediate-break-row");
+                row.id = rowId;
+                row.innerHTML = `
+                    <div>
+                        <label for="${startId}"><i class="fas fa-door-closed"></i>Uscita Intermedia:</label>
+                        <input type="time" id="${startId}" class="intermediate-start-input">
+                    </div>
+                    <div>
+                        <label for="${endId}"><i class="fas fa-door-open"></i>Rientro Intermedio:</label>
+                        <input type="time" id="${endId}" class="intermediate-end-input">
+                    </div>
+                    <button type="button" class="remove-intermediate-break-btn" title="Rimuovi questa pausa" aria-label="Rimuovi questa pausa" data-row-id="${rowId}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                intermediateBreaksContainer.appendChild(row);
+                row.querySelector(`#${startId}`).focus();
+                hideAllResults();
+            }
+
+            setTheme(getStoredTheme());
+            updateModeState();
+
+            themeToggleButton.addEventListener("click", () => {
+                setTheme(!document.body.classList.contains("dark-theme"));
+            });
+
+            rulesToggleButton.addEventListener("click", () => {
+                const isShown = rulesSection.classList.toggle("show");
+                rulesToggleButton.title = isShown ? "Nascondi Regole" : "Mostra Regole";
+                rulesToggleButton.setAttribute("aria-label", isShown ? "Nascondi regole di calcolo" : "Mostra regole di calcolo");
+                rulesToggleButton.setAttribute("aria-expanded", String(isShown));
+                rulesSection.setAttribute("aria-hidden", String(!isShown));
+                rulesToggleButton.querySelector(".fas").className = `fas ${isShown ? "fa-times-circle" : "fa-info-circle"}`;
+            });
+
+            partTimeToggle.addEventListener("change", updateModeState);
+            addIntermediateBreakBtn.addEventListener("click", addIntermediateBreakRow);
+
+            intermediateBreaksContainer.addEventListener("click", function(event) {
+                const removeButton = event.target.closest(".remove-intermediate-break-btn");
+                if (!removeButton) return;
+
+                const rowToRemove = document.getElementById(removeButton.dataset.rowId);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    recalculateVisibleResults();
+                }
+            });
 
             calculateBtn.addEventListener("click", function() {
                 const calculation = calculateTimes();
 
-                if (calculation.success) {
-                    clearAppAlert();
-                    const res = calculation.results;
-
-                    // Update first card (Predicted Exit)
-                    lunchDurationEl.textContent = res.hasLunch ? minutesToTimeString(res.actualLunchDuration) : "Nessuna";
-                    pulseElement(lunchDurationEl);
-
-                    if (res.hasLunch) {
-                        mealVoucherEl.textContent = res.mealVoucherEarned ? "Sì" : "No";
-                        mealVoucherEl.className = `result-value ${res.mealVoucherEarned ? 'success' : 'warning'}`;
-                    } else {
-                        mealVoucherEl.textContent = "N/D";
-                        mealVoucherEl.className = "result-value";
-                    }
-                    pulseElement(mealVoucherEl);
-
-                    // Display bonus only if it's applicable (not remote)
-                    lunchBonusEl.textContent = !res.isRemoteWork && res.lunchBonusMinutes > 0 ? `${res.lunchBonusMinutes} min` : "Nessuno";
-                    pulseElement(lunchBonusEl);
-
-                    exitTimeEl.textContent = minutesToTimeString(res.exitTimeTotalMinutes);
-                    pulseElement(exitTimeEl);
-
-                    displayCard(resultCard);
-                    actualExitCard.classList.remove('show'); // Hide actuals card
-
-                    // Clear previous actual results display
-                    totalHoursEl.textContent = "--:--";
-                    hoursDifferenceEl.textContent = "--:--";
-                    totalHoursEl.className = "result-value";
-                    hoursDifferenceEl.className = "result-value";
-                } else {
-                    resultCard.classList.remove('show');
-                    actualExitCard.classList.remove('show');
+                if (!calculation.success) {
+                    hideAllResults();
+                    return;
                 }
+
+                renderPredictionResults(calculation.results);
+                resetActualResults();
             });
 
             calculateHoursBtn.addEventListener("click", function() {
                 if (!actualExitTimeInput.value || timeToMinutes(actualExitTimeInput.value) === null) {
-                     showAppAlert("Inserisci un orario effettivo di uscita valido per calcolare le ore lavorate.", actualExitTimeInput);
-                     actualExitTimeInput.focus();
-                     return;
+                    showAppAlert("Inserisci un orario effettivo di uscita valido per calcolare le ore lavorate.");
+                    actualExitTimeInput.focus();
+                    return;
                 }
 
                 const calculation = calculateTimes();
+                if (!calculation.success) {
+                    hideAllResults();
+                    return;
+                }
 
-                if (calculation.success) {
-                    clearAppAlert();
-                    const res = calculation.results;
+                renderPredictionResults(calculation.results);
+                renderActualResults(calculation.results);
+            });
 
-                     // Update first card (again, for consistency)
-                    lunchDurationEl.textContent = res.hasLunch ? minutesToTimeString(res.actualLunchDuration) : "Nessuna";
-                     if (res.hasLunch) {
-                        mealVoucherEl.textContent = res.mealVoucherEarned ? "Sì" : "No";
-                        mealVoucherEl.className = `result-value ${res.mealVoucherEarned ? 'success' : 'warning'}`;
-                    } else {
-                        mealVoucherEl.textContent = "N/D";
-                        mealVoucherEl.className = "result-value";
-                    }
-                    lunchBonusEl.textContent = !res.isRemoteWork && res.lunchBonusMinutes > 0 ? `${res.lunchBonusMinutes} min` : "Nessuno";
-                    exitTimeEl.textContent = minutesToTimeString(res.exitTimeTotalMinutes);
-                    pulseElement(lunchDurationEl);
-                    pulseElement(mealVoucherEl);
-                    pulseElement(lunchBonusEl);
-                    pulseElement(exitTimeEl);
+            [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
+                input.addEventListener("input", hideAllResults);
+            });
 
+            actualExitTimeInput.addEventListener("input", resetActualResults);
 
-                    // Update second card (Actual Hours)
-                    if (res.hasActualExit && res.totalWorkMinutes !== null && res.differenceMinutes !== null) {
-                        totalHoursEl.textContent = minutesToTimeString(res.totalWorkMinutes);
-                        hoursDifferenceEl.textContent = `${res.differenceMinutes >= 0 ? "+" : ""}${minutesToTimeString(res.differenceMinutes)}`;
-
-                        totalHoursEl.className = "result-value";
-                        hoursDifferenceEl.className = "result-value";
-                        if (res.differenceMinutes < 0) {
-                            hoursDifferenceEl.classList.add("warning");
-                        } else if (res.differenceMinutes > 5) {
-                            hoursDifferenceEl.classList.add("success");
-                        } else {
-                            hoursDifferenceEl.classList.add("info");
-                        }
-                        pulseElement(totalHoursEl);
-                        pulseElement(hoursDifferenceEl);
-
-                        // Update target hours label in difference section
-                        document.getElementById('target-hours-label').textContent =
-                            formatTargetHoursLabel(res.targetWorkMinutes, res.isPartTime, res.isRemoteWork);
-
-
-                        displayCard(resultCard);
-                        displayCard(actualExitCard);
-                    } else {
-                        showAppAlert("Errore nel calcolo delle ore lavorate. Verifica gli orari inseriti.");
-                        actualExitCard.classList.remove('show');
-                    }
-                } else {
-                    resultCard.classList.remove('show');
-                    actualExitCard.classList.remove('show');
+            intermediateBreaksContainer.addEventListener("input", event => {
+                if (event.target.type === "time") {
+                    hideAllResults();
                 }
             });
-
-            // Add event listeners to inputs to hide results on change
-            [entryTimeInput, lunchStartInput, lunchEndInput].forEach(input => {
-                input.addEventListener('input', () => {
-                    clearFieldError(input);
-                    clearAppAlert();
-                    resultCard.classList.remove('show');
-                    actualExitCard.classList.remove('show');
-                });
-            });
-            actualExitTimeInput.addEventListener('input', () => {
-                clearFieldError(actualExitTimeInput);
-                clearAppAlert();
-            });
-             // Also reset on intermediate break input changes
-             intermediateBreaksContainer.addEventListener('input', (event) => {
-                 if (event.target.type === 'time') {
-                    clearFieldError(event.target);
-                    clearAppAlert();
-                     resultCard.classList.remove('show');
-                     actualExitCard.classList.remove('show');
-                 }
-             });
-
         });
     </script>
 </body>
